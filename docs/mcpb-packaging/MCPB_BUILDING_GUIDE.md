@@ -746,8 +746,8 @@ Add a `prompts` section to your manifest.json:
      2. Publish to TestPyPI
 
 3. **Verification**
-   - Check PyPI: [pypi.org/project/database-operations-mcp/](https://pypi.org/project/database-operations-mcp/)
-   - Check TestPyPI: [test.pypi.org/project/database-operations-mcp/](https://test.pypi.org/project/database-operations-mcp/)
+   - Check PyPI: [pypi.org/project/llm-txt-mcp/](https://pypi.org/project/llm-txt-mcp/)
+   - Check TestPyPI: [test.pypi.org/project/llm-txt-mcp/](https://test.pypi.org/project/llm-txt-mcp/)
 
 ### Release Artifacts
 
@@ -1919,3 +1919,5 @@ If you encounter issues during migration:
 4. **CI/CD Failures**: Update all pipeline configurations
 
 Remember: This migration improves the toolkit's functionality and provides better integration with the broader MCP ecosystem.
+
+

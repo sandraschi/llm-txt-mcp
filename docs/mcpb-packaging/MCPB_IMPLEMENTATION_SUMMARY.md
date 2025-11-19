@@ -15,7 +15,7 @@ Successfully implemented complete MCPB (MCP Bundle) packaging for the Notepad++ 
 1. **MCPB CLI Installation** - Installed @anthropic-ai/mcpb v1.1.1
 2. **Configuration Files** - Created and validated mcpb.json and manifest.json
 3. **Build Script** - Created PowerShell build script with full validation
-4. **Package Build** - Successfully built notepadpp-mcp.mcpb (0.19 MB)
+4. **Package Build** - Successfully built llm-txt-mcp.mcpb (0.19 MB)
 5. **GitHub Actions** - Created automated CI/CD workflow
 6. **Documentation** - Updated all documentation to v1.2.0
 
@@ -27,7 +27,7 @@ Successfully implemented complete MCPB (MCP Bundle) packaging for the Notepad++ 
 
 | Property | Value |
 |----------|-------|
-| **Name** | notepadpp-mcp |
+| **Name** | llm-txt-mcp |
 | **Version** | 1.2.0 |
 | **Size** | 0.19 MB |
 | **Format** | .mcpb (MCP Bundle) |
@@ -51,7 +51,7 @@ Successfully implemented complete MCPB (MCP Bundle) packaging for the Notepad++ 
 
 ```json
 {
-  "name": "notepadpp-mcp",
+  "name": "llm-txt-mcp",
   "version": "1.2.0",
   "description": "Comprehensive Notepad++ automation with 26 tools",
   "author": "Sandra Schi",
@@ -79,7 +79,7 @@ Successfully implemented complete MCPB (MCP Bundle) packaging for the Notepad++ 
 ```json
 {
   "manifest_version": "0.2",
-  "name": "notepadpp-mcp",
+  "name": "llm-txt-mcp",
   "version": "1.2.0",
   "description": "Comprehensive Notepad++ automation with 26 powerful tools",
   "author": {
@@ -188,7 +188,7 @@ Successfully implemented complete MCPB (MCP Bundle) packaging for the Notepad++ 
 
 ### Release Assets
 
-- **MCPB Package** - notepadpp-mcp.mcpb
+- **MCPB Package** - llm-txt-mcp.mcpb
 - **Python Wheel** - .whl file
 - **Source Distribution** - .tar.gz file
 - **Auto-generated** release notes
@@ -293,7 +293,7 @@ Updated documentation to reflect v1.2.0:
 .\scripts\build-mcpb-package.ps1 -NoSign
 
 # 2. Test installation
-# Drag dist\notepadpp-mcp.mcpb to Claude Desktop
+# Drag dist\llm-txt-mcp.mcpb to Claude Desktop
 
 # 3. Configure settings
 # Set Notepad++ path and preferences
@@ -377,11 +377,13 @@ The Notepad++ MCP Server now has:
 - ✅ Plugin ecosystem integration
 - ✅ Comprehensive documentation
 
-**Package Ready**: `dist/notepadpp-mcp.mcpb` (0.19 MB)
+**Package Ready**: `dist/llm-txt-mcp.mcpb` (0.19 MB)
 
 ---
 
 *Document created: October 8, 2025*  
 *Implementation completed by: AI Assistant following MCPB Building Guide v3.1*  
 *Status: ✅ Production Ready*
+
+
 

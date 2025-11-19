@@ -1,10 +1,10 @@
 # 📦 PyPI Publishing Guide - Complete Walkthrough
 
-**Complete guide to publishing notepadpp-mcp on the Python Package Index (PyPI)**
+**Complete guide to publishing llm-txt-mcp on the Python Package Index (PyPI)**
 
 **Date**: October 8, 2025  
 **Status**: Ready to publish  
-**Target**: Make `pip install notepadpp-mcp` work globally
+**Target**: Make `pip install llm-txt-mcp` work globally
 
 ---
 
@@ -19,7 +19,7 @@
 - **100,000+** packages available
 
 **Why publish to PyPI**:
-- ✅ Easy installation: `pip install notepadpp-mcp`
+- ✅ Easy installation: `pip install llm-txt-mcp`
 - ✅ Automatic dependency resolution
 - ✅ Version management
 - ✅ Discoverability (searchable on PyPI)
@@ -91,10 +91,10 @@
 2. Go to: https://pypi.org/manage/account/token/
 3. Click **"Add API token"**
 4. Fill in:
-   - **Token name**: `notepadpp-mcp-upload` (descriptive name)
+   - **Token name**: `llm-txt-mcp-upload` (descriptive name)
    - **Scope**: 
      - **Option 1**: "Entire account" (can upload any package)
-     - **Option 2**: "Project" → Select `notepadpp-mcp` (package-specific, more secure)
+     - **Option 2**: "Project" → Select `llm-txt-mcp` (package-specific, more secure)
 5. Click **"Add token"**
 6. ✅ **COPY THE TOKEN IMMEDIATELY!** (shown only once)
 
@@ -171,7 +171,7 @@ twine upload dist/* -u __token__ -p pypi-AgEIcHlwaS5vcmcCJGFiY...
 ### **A. Verify Package Structure**
 
 ```
-notepadpp-mcp/
+llm-txt-mcp/
 ├── src/
 │   └── notepadpp_mcp/
 │       ├── __init__.py
@@ -188,7 +188,7 @@ notepadpp-mcp/
 
 ```toml
 [project]
-name = "notepadpp-mcp"
+name = "llm-txt-mcp"
 version = "1.2.0"  # Update for each release!
 description = "MCP Server for Notepad++ automation"
 readme = "README.md"
@@ -217,13 +217,13 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/sandraschi/notepadpp-mcp"
-Repository = "https://github.com/sandraschi/notepadpp-mcp"
-Documentation = "https://github.com/sandraschi/notepadpp-mcp/blob/main/README.md"
-"Bug Tracker" = "https://github.com/sandraschi/notepadpp-mcp/issues"
+Homepage = "https://github.com/sandraschi/llm-txt-mcp"
+Repository = "https://github.com/sandraschi/llm-txt-mcp"
+Documentation = "https://github.com/sandraschi/llm-txt-mcp/blob/main/README.md"
+"Bug Tracker" = "https://github.com/sandraschi/llm-txt-mcp/issues"
 
 [project.scripts]
-notepadpp-mcp = "notepadpp_mcp.tools.server:main"
+llm-txt-mcp = "notepadpp_mcp.tools.server:main"
 ```
 
 ---
@@ -316,7 +316,7 @@ python -m build
 # Output:
 # dist/
 #   notepadpp_mcp-1.2.0-py3-none-any.whl    ← Wheel (binary)
-#   notepadpp-mcp-1.2.0.tar.gz              ← Source distribution
+#   llm-txt-mcp-1.2.0.tar.gz              ← Source distribution
 ```
 
 **What gets created**:
@@ -335,7 +335,7 @@ python -m zipfile -l dist/notepadpp_mcp-1.2.0-py3-none-any.whl
 twine check dist/*
 
 # Should show:
-# Checking dist/notepadpp-mcp-1.2.0.tar.gz: PASSED
+# Checking dist/llm-txt-mcp-1.2.0.tar.gz: PASSED
 # Checking dist/notepadpp_mcp-1.2.0-py3-none-any.whl: PASSED
 ```
 
@@ -362,11 +362,11 @@ twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 Uploading distributions to https://test.pypi.org/legacy/
 Uploading notepadpp_mcp-1.2.0-py3-none-any.whl
 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 52.3/52.3 kB • 00:01
-Uploading notepadpp-mcp-1.2.0.tar.gz
+Uploading llm-txt-mcp-1.2.0.tar.gz
 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 48.5/48.5 kB • 00:01
 
 View at:
-https://test.pypi.org/project/notepadpp-mcp/1.2.0/
+https://test.pypi.org/project/llm-txt-mcp/1.2.0/
 ```
 
 ---
@@ -379,10 +379,10 @@ python -m venv test-env
 .\test-env\Scripts\activate
 
 # Install from Test PyPI
-pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ notepadpp-mcp
+pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ llm-txt-mcp
 
 # Test it works
-notepadpp-mcp --version
+llm-txt-mcp --version
 python -m notepadpp_mcp.tools.server
 
 # If works: ✅ Ready for production!
@@ -407,11 +407,11 @@ twine upload dist/*
 Uploading distributions to https://upload.pypi.org/legacy/
 Uploading notepadpp_mcp-1.2.0-py3-none-any.whl
 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 52.3/52.3 kB • 00:02
-Uploading notepadpp-mcp-1.2.0.tar.gz
+Uploading llm-txt-mcp-1.2.0.tar.gz
 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 48.5/48.5 kB • 00:02
 
 View at:
-https://pypi.org/project/notepadpp-mcp/1.2.0/
+https://pypi.org/project/llm-txt-mcp/1.2.0/
 ```
 
 **🎉 DONE! Your package is live!**
@@ -422,10 +422,10 @@ https://pypi.org/project/notepadpp-mcp/1.2.0/
 
 ```powershell
 # In fresh environment
-pip install notepadpp-mcp
+pip install llm-txt-mcp
 
 # Test
-notepadpp-mcp --version
+llm-txt-mcp --version
 
 # Should work globally now!
 ```
@@ -437,9 +437,9 @@ notepadpp-mcp --version
 ### **A. Add PyPI Badge to README**
 
 ```markdown
-[![PyPI version](https://img.shields.io/pypi/v/notepadpp-mcp.svg)](https://pypi.org/project/notepadpp-mcp/)
-[![Python versions](https://img.shields.io/pypi/pyversions/notepadpp-mcp.svg)](https://pypi.org/project/notepadpp-mcp/)
-[![Downloads](https://pepy.tech/badge/notepadpp-mcp)](https://pepy.tech/project/notepadpp-mcp)
+[![PyPI version](https://img.shields.io/pypi/v/llm-txt-mcp.svg)](https://pypi.org/project/llm-txt-mcp/)
+[![Python versions](https://img.shields.io/pypi/pyversions/llm-txt-mcp.svg)](https://pypi.org/project/llm-txt-mcp/)
+[![Downloads](https://pepy.tech/badge/llm-txt-mcp)](https://pepy.tech/project/llm-txt-mcp)
 ```
 
 ---
@@ -451,13 +451,13 @@ notepadpp-mcp --version
 ## Installation
 
 ```bash
-pip install notepadpp-mcp
+pip install llm-txt-mcp
 ```
 
 **From source**:
 ```bash
-git clone https://github.com/sandraschi/notepadpp-mcp.git
-cd notepadpp-mcp
+git clone https://github.com/sandraschi/llm-txt-mcp.git
+cd llm-txt-mcp
 pip install -e .
 ```
 ```
@@ -466,12 +466,12 @@ pip install -e .
 
 ### **C. Create GitHub Release**
 
-1. Go to: https://github.com/sandraschi/notepadpp-mcp/releases
+1. Go to: https://github.com/sandraschi/llm-txt-mcp/releases
 2. Click "Create a new release"
 3. Tag: `v1.2.0`
 4. Title: `v1.2.0 - Plugin Ecosystem & MCPB Packaging`
 5. Description: Copy from CHANGELOG.md
-6. Attach: `dist/notepadpp-mcp-1.2.0.tar.gz`
+6. Attach: `dist/llm-txt-mcp-1.2.0.tar.gz`
 7. ✅ Publish release
 
 ---
@@ -537,12 +537,12 @@ Invalid or non-existent authentication information
 ### **Error 3: "Package name already taken"**
 
 ```
-ERROR: The name 'notepadpp-mcp' is already claimed
+ERROR: The name 'llm-txt-mcp' is already claimed
 ```
 
 **Cause**: Someone else registered this name  
 **Solution**: 
-- Choose different name (e.g., `notepadpp-mcp-server`)
+- Choose different name (e.g., `llm-txt-mcp-server`)
 - Contact PyPI admins if you own the name
 
 ---
@@ -579,12 +579,12 @@ ERROR: `description` is a required field
 
 **After publishing**, your package page shows:
 
-**URL**: https://pypi.org/project/notepadpp-mcp/
+**URL**: https://pypi.org/project/llm-txt-mcp/
 
 **Displays**:
 - ✅ Package name & version
 - ✅ README (rendered from your README.md)
-- ✅ Installation command: `pip install notepadpp-mcp`
+- ✅ Installation command: `pip install llm-txt-mcp`
 - ✅ Dependencies
 - ✅ Python version requirements
 - ✅ Download statistics
@@ -622,7 +622,7 @@ pip install -e .
 
 # 2. Test on Test PyPI
 twine upload --repository testpypi dist/*
-pip install --index-url https://test.pypi.org/simple/ notepadpp-mcp
+pip install --index-url https://test.pypi.org/simple/ llm-txt-mcp
 # Verify works
 
 # 3. THEN upload to production
@@ -755,7 +755,7 @@ jobs:
 - [ ] Test upload: `twine upload --repository testpypi dist/*`
 - [ ] Test install from Test PyPI
 - [ ] Production upload: `twine upload dist/*`
-- [ ] Verify: `pip install notepadpp-mcp`
+- [ ] Verify: `pip install llm-txt-mcp`
 - [ ] Create GitHub release
 - [ ] Update README badges
 
@@ -767,13 +767,13 @@ jobs:
 
 ```bash
 # Anyone in the world can now install:
-pip install notepadpp-mcp
+pip install llm-txt-mcp
 
 # Your package is discoverable on:
-https://pypi.org/project/notepadpp-mcp/
+https://pypi.org/project/llm-txt-mcp/
 
 # Download statistics available at:
-https://pepy.tech/project/notepadpp-mcp
+https://pepy.tech/project/llm-txt-mcp
 ```
 
 **Congratulations! You're now a published Python package author!** 🎊
@@ -782,8 +782,10 @@ https://pepy.tech/project/notepadpp-mcp
 
 *PyPI Publishing Guide*  
 *Created: October 8, 2025*  
-*For: notepadpp-mcp v1.2.0*  
+*For: llm-txt-mcp v1.2.0*  
 *Status: Ready to publish*
 
 **Happy publishing!** 🚀📦
+
+
 

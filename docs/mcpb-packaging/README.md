@@ -44,7 +44,7 @@
 
 **Read Time**: 15 minutes  
 **Status**: ✅ **COMPLETED** implementation  
-**Package**: dist/notepadpp-mcp.mcpb (ready!)
+**Package**: dist/llm-txt-mcp.mcpb (ready!)
 
 ---
 
@@ -67,12 +67,12 @@
 
 | Property | Value |
 |----------|-------|
-| **Name** | notepadpp-mcp.mcpb |
+| **Name** | llm-txt-mcp.mcpb |
 | **Version** | 1.2.0 |
 | **Size** | 0.19 MB |
 | **Tools** | 26 |
 | **Status** | ✅ Production Ready |
-| **Location** | `dist/notepadpp-mcp.mcpb` |
+| **Location** | `dist/llm-txt-mcp.mcpb` |
 
 ### **User Configuration**
 
@@ -100,7 +100,7 @@ When users install our MCPB package, they're prompted for:
 # Build MCPB package (development)
 .\scripts\build-mcpb-package.ps1 -NoSign
 
-# Output: dist/notepadpp-mcp.mcpb (0.19 MB)
+# Output: dist/llm-txt-mcp.mcpb (0.19 MB)
 ```
 
 ### **Build Script Features**
@@ -165,7 +165,7 @@ When users install our MCPB package, they're prompted for:
 **Key Sections**:
 ```json
 {
-  "name": "notepadpp-mcp",
+  "name": "llm-txt-mcp",
   "version": "1.2.0",
   "mcp": {
     "version": "2.12.0",
@@ -190,7 +190,7 @@ When users install our MCPB package, they're prompted for:
 ```json
 {
   "manifest_version": "0.2",
-  "name": "notepadpp-mcp",
+  "name": "llm-txt-mcp",
   "version": "1.2.0",
   "server": {
     "type": "python",
@@ -301,7 +301,7 @@ When users install our MCPB package, they're prompted for:
 ### **What's Inside the MCPB Package**
 
 ```
-notepadpp-mcp.mcpb (0.19 MB)
+llm-txt-mcp.mcpb (0.19 MB)
 ├── manifest.json              # Runtime configuration
 ├── requirements.txt           # Python dependencies
 ├── src/                       # Source code
@@ -401,4 +401,6 @@ notepadpp-mcp.mcpb (0.19 MB)
 *Status: Production ready*
 
 **Package your MCP server professionally!** 📦✨
+
+
 

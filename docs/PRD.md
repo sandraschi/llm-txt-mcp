@@ -390,3 +390,4 @@ MCP Client
   - v1.0 (2025-11-19): Initial PRD creation
 - **Approvals:** Sandra Schipal (Author/Owner)
 - **Next Review:** 2025-12-19
+

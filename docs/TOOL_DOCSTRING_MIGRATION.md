@@ -305,7 +305,7 @@ if __name__ == '__main__':
 
 **Usage:**
 ```bash
-cd /path/to/database-operations-mcp
+cd /path/to/llm-txt-mcp
 python check_docstrings.py
 ```
 
@@ -362,4 +362,5 @@ Before marking migration complete:
 *Migration Guide v1.0.0*  
 *Part of MCPB Documentation*  
 *Location: `mcpb/docs/TOOL_DOCSTRING_MIGRATION.md`*
+
 
