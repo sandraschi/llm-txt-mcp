@@ -15,7 +15,7 @@ This guide helps you build a **megatest framework** for ANY MCP server repositor
 ## 📚 Applicable to ALL MCP Servers
 
 This framework works for:
-- ✅ **Advanced Memory MCP** (knowledge management)
+- ✅ **LLM.txt MCP** (knowledge management)
 - ✅ **Virtualization MCP** (VM management tools)
 - ✅ **Avatar MCP** (avatar/persona tools)
 - ✅ **Database MCP** (database operation tools)
@@ -1173,7 +1173,7 @@ The **Universal MCP Megatest Framework** provides:
 - See `MEGATEST_QUICK_REFERENCE.md` for quick commands
 
 ### Implementation Help?
-Refer to Advanced Memory MCP as reference implementation:
+Refer to LLM.txt MCP as reference implementation:
 - Repository: github.com/basicmachines-co/advanced-memory-mcp
 - Tests: `tests/megatest/` (once implemented)
 - Docs: `docs/testing/`
@@ -1186,5 +1186,6 @@ Refer to Advanced Memory MCP as reference implementation:
 *ROI: Positive within first month*
 
 🎯 **Copy this guide to your MCP repos and start building safe, comprehensive tests!** 🎯
+
 
 

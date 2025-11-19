@@ -2,7 +2,7 @@
 
 ## 🎯 Overview
 
-This document outlines the requirements and recommendations for listing Advanced Memory MCP on Glama.ai's MCP server directory.
+This document outlines the requirements and recommendations for listing LLM.txt MCP on Glama.ai's MCP server directory.
 
 ## 📋 Core Requirements
 
@@ -227,4 +227,5 @@ search
 **Last Updated**: October 2024
 **Status**: Ready for Glama.ai submission
 **Quality Tier**: Bronze → Silver (in progress)
+
 

@@ -1,6 +1,6 @@
 # GLAMA AI & GOLD Standard Documentation
 
-This directory contains documentation related to achieving GLAMA AI Gold standard status for the Advanced Memory MCP project.
+This directory contains documentation related to achieving GLAMA AI Gold standard status for the LLM.txt MCP project.
 
 ## Overview
 
@@ -80,5 +80,6 @@ GLAMA AI is a quality assurance platform that evaluates MCP servers against rigo
 **Last Updated:** October 9, 2025  
 **Current Tier:** Bronze (40/100) 🥉  
 **Next Goal:** Silver (60/100) - 32 hours away
+
 
 

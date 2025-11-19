@@ -387,3 +387,4 @@ The Notepad++ MCP Server now has:
 
 
 
+

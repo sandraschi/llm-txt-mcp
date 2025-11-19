@@ -384,7 +384,7 @@ export MEGATEST_CLEANUP=archive
 
 #### Before Validation
 ```
-User: "I installed Advanced Memory MCP via MCPB..."
+User: "I installed LLM.txt MCP via MCPB..."
 User: "...but how do I know it's working?"
 ```
 
@@ -424,7 +424,7 @@ $ advanced-memory validate
 ║ Report saved to:                                         ║
 ║ C:\Users\sandr\Documents\megatest-results\...            ║
 ║                                                          ║
-║ 🎉 Advanced Memory MCP is ready to use!                 ║
+║ 🎉 LLM.txt MCP is ready to use!                 ║
 ╚══════════════════════════════════════════════════════════╝
 ```
 
@@ -541,7 +541,7 @@ def validate(
 ```markdown
 ## Installation Validation
 
-After installing Advanced Memory MCP, validate it works:
+After installing LLM.txt MCP, validate it works:
 
 \`\`\`bash
 # Quick validation (2 minutes)
@@ -1070,5 +1070,6 @@ Instead of wondering "Does this work?", they can **PROVE it works** in 2 minutes
 *Three use cases documented: October 15, 2025*
 *Development + GitHub + User Validation = Complete coverage*
 *Your megatest framework serves everyone!*
+
 
 
