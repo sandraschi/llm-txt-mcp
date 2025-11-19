@@ -35,7 +35,7 @@
     
 .EXAMPLE
     .\scripts\backup-repo.ps1
-    # Creates backup in Desktop\repo backup, N:\backup\dev\repos2, and OneDrive\Backup
+    # Creates backup in Desktop\repo backup, N:\backup\dev\repos2, and OneDrive\Backup\repo-backups
     
 .EXAMPLE
     .\scripts\backup-repo.ps1 -IncludeBuild -Verbose
@@ -128,7 +128,7 @@ if ($List) {
     }
     $desktopBackup = Join-Path (Join-Path ([Environment]::GetFolderPath("Desktop")) "repo backup") $repoName
     $nDriveBackup = Join-Path "N:\backup\dev\repos2" $repoName
-    $oneDriveBackup = Join-Path (Join-Path $env:OneDrive "Backup") $repoName
+    $oneDriveBackup = Join-Path (Join-Path (Join-Path $env:OneDrive "Backup") "repo-backups") $repoName
     
     Show-BackupHistory -RepoName $repoName -BackupDirs @($desktopBackup, $nDriveBackup, $oneDriveBackup)
 }
@@ -150,7 +150,7 @@ $backupName = "${repoName}_backup_${timestamp}.zip"
 # Define backup destinations with subdirectories per repo
 $desktopBackup = Join-Path (Join-Path ([Environment]::GetFolderPath("Desktop")) "repo backup") $repoName
 $nDriveBackup = Join-Path "N:\backup\dev\repos2" $repoName
-$oneDriveRoot = Join-Path $env:OneDrive "Backup"
+$oneDriveRoot = Join-Path (Join-Path $env:OneDrive "Backup") "repo-backups"
 $oneDriveBackup = Join-Path $oneDriveRoot $repoName
 
 # Ensure backup directories exist
