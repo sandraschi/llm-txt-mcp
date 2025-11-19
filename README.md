@@ -2,7 +2,7 @@
 
 > Automated generation and management of llms.txt documentation files for AI accessibility
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![FastMCP](https://img.shields.io/badge/FastMCP-2.12.0+-green.svg)](https://github.com/jlowin/fastmcp)
 [![Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -21,7 +21,7 @@ The LLM.txt MCP Server provides comprehensive tools for generating, validating, 
 
 ## 📋 Requirements
 
-- Python 3.10 or higher
+- Python 3.11 or higher
 - FastMCP 2.12.0+
 - Git (optional, for enhanced project analysis)
 

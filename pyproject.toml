@@ -7,7 +7,7 @@ name = "llm-txt-mcp"
 version = "0.1.0"
 description = "MCP server for generating and managing llms.txt documentation files"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = {text = "MIT"}
 authors = [
     {name = "Sandra Schipal", email = "sandra@sandraschi.dev"}
@@ -16,7 +16,6 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Documentation",
@@ -30,7 +29,7 @@ dependencies = [
     "markdown>=3.5.0",
     "pyyaml>=6.0.0",
     "gitpython>=3.1.0",
-    "typing-extensions>=4.0.0; python_version < '3.10'"
+    "typing-extensions>=4.0.0; python_version < '3.11'"
 ]
 
 [project.optional-dependencies]
@@ -62,13 +61,13 @@ include = ["llm_txt_mcp", "llm_txt_mcp.*"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py310"
+target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
