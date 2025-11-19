@@ -1,285 +1,392 @@
-# LLM.txt MCP Server - Product Requirements Document 🎯
+# Product Requirements Document (PRD)
+# LLM.txt MCP Server
 
 **Version:** 1.0  
-**Date:** 2025-08-17  
-**Project:** llm-txt-mcp  
-**Owner:** Sandra Schipal  
-
-## 🎯 Executive Summary
-
-The LLM.txt MCP Server addresses the critical need for AI-readable documentation in modern development workflows. As AI coding assistants become essential tools, projects without structured documentation become invisible to these systems. This MCP server automates the generation and maintenance of llms.txt files, making any codebase instantly accessible to Claude, ChatGPT, and other LLMs.
-
-**Core Value Proposition:** Transform any code repository into an AI-friendly documentation system with zero manual effort, enabling superior AI-assisted development experiences.
-
-## 🚀 Problem Statement
-
-### **Current State Pain Points**
-1. **AI Assistants Struggle with HTML/CSS Noise** - Modern documentation sites are JavaScript-heavy, making them unreadable by AI systems
-2. **Manual Documentation Maintenance** - Developers avoid creating and updating documentation due to time constraints
-3. **Inconsistent Documentation Standards** - No standardized way to present project information to AI systems
-4. **Context Window Limitations** - Large documentation sites exceed LLM context windows
-5. **Vienna Development Inefficiency** - Sandra's projects lack AI-readable documentation, reducing AI assistant effectiveness
-
-### **Target Users**
-- **Primary:** Sandra Schipal and Vienna development team
-- **Secondary:** AI-first developers using Claude Desktop, Cursor, and similar tools
-- **Tertiary:** Open source maintainers wanting AI-accessible documentation
-
-## 🎯 Product Vision
-
-**"Make every code repository instantly AI-readable through automated llms.txt generation"**
-
-Enable developers to leverage AI assistants more effectively by providing structured, AI-optimized documentation that updates automatically with code changes.
-
-## 🔧 Core Features
-
-### **MVP Features (v0.1.0)**
-
-#### **1. Automated llms.txt Generation**
-- **Function:** Scan project directories and generate both `llms.txt` (navigation) and `llms-full.txt` (complete content)
-- **Input:** Project directory path
-- **Output:** Standardized llms.txt files following official specification
-- **Intelligence:** 
-  - Project type detection (Python, TypeScript, React, FastAPI, etc.)
-  - Smart file prioritization (README, API docs, examples)
-  - Content extraction from existing documentation
-
-#### **2. MCP Server Integration**
-- **Function:** Expose functionality through FastMCP 2.10+ protocol
-- **Integration:** Direct Claude Desktop integration via MCP configuration
-- **Tools Provided:**
-  - `generate_llms_txt` - Main generation function
-  - `validate_llms_txt` - Format validation
-  - `scan_project_structure` - Analysis and recommendations
-  - `convert_to_context` - XML/JSON output for LLMs
-
-#### **3. Project Type Intelligence**
-- **Function:** Automatically detect project characteristics and generate appropriate documentation structure
-- **Supported Types:**
-  - Python (pyproject.toml, setup.py detection)
-  - TypeScript/JavaScript (package.json, tsconfig.json)
-  - React (component detection)
-  - FastAPI (API endpoint discovery)
-  - Generic fallback for any project
-
-#### **4. Template System**
-- **Function:** Pre-built templates for common project types
-- **Templates:**
-  - Generic - Basic docs/examples/optional structure
-  - Python - API/configuration/deployment sections
-  - React - Components/hooks/styling sections
-  - FastAPI - Models/endpoints/deployment sections
-
-#### **5. Content Validation**
-- **Function:** Ensure generated llms.txt files comply with specification
-- **Validation Rules:**
-  - H1 header with project name
-  - Blockquote summary section
-  - H2-delimited sections
-  - Valid markdown link format
-  - Appropriate section ordering
-
-### **Advanced Features (v0.2.0+)**
-
-#### **6. Git Integration**
-- **Function:** Detect file changes and automatically update documentation
-- **Capabilities:**
-  - Hook into git commits
-  - Incremental updates for changed files only
-  - Preserve manual customizations
-
-#### **7. CI/CD Pipeline Integration**
-- **Function:** Automated documentation generation in build processes
-- **Outputs:**
-  - GitHub Actions workflow
-  - Pre-commit hooks
-  - Build step integration
-
-#### **8. Batch Processing**
-- **Function:** Process multiple projects simultaneously
-- **Use Case:** Organization-wide documentation standardization
-
-## 🏗️ Technical Architecture
-
-### **Core Components**
-
-#### **1. LLMTextService**
-- **Responsibility:** Main business logic and orchestration
-- **Key Methods:**
-  - `generate_project_llms_txt()` - Main generation workflow
-  - `validate_llms_txt()` - Format validation
-  - `update_llms_txt()` - Incremental updates
-  - `scan_project_structure()` - Project analysis
-
-#### **2. DocumentationProject**
-- **Responsibility:** Project structure analysis and file discovery
-- **Key Features:**
-  - Project type detection
-  - File categorization (docs, source, config)
-  - Git repository integration
-  - Smart content prioritization
-
-#### **3. LLMTextGenerator**
-- **Responsibility:** Content generation and formatting
-- **Key Features:**
-  - Template-based generation
-  - Content extraction from existing files
-  - Format validation and standardization
-  - Multi-format output (Markdown, XML, JSON)
-
-#### **4. FastMCP Server**
-- **Responsibility:** MCP protocol implementation
-- **Integration:** Claude Desktop, other MCP-compatible tools
-- **Error Handling:** Comprehensive error reporting and recovery
-
-### **Technology Stack**
-- **Framework:** FastMCP 2.10.1+
-- **Language:** Python 3.9+
-- **Dependencies:**
-  - `aiofiles` - Async file operations
-  - `gitpython` - Git repository integration
-  - `pathspec` - File pattern matching
-  - `markdown` - Content processing
-  - `pyyaml` - Configuration handling
-
-### **Performance Requirements**
-- **Generation Time:** < 5 seconds for typical project (1000 files)
-- **Memory Usage:** < 100MB for large projects (10,000 files)
-- **Concurrency:** Support multiple simultaneous requests
-- **Reliability:** 99.9% success rate for valid project directories
-
-## 🎯 User Experience
-
-### **Primary Workflow (Claude Desktop Integration)**
-
-1. **Setup:** Add llm-txt-mcp to Claude Desktop configuration
-2. **Discovery:** Use `scan_project_structure` to analyze project
-3. **Generation:** Use `generate_llms_txt` to create documentation
-4. **Validation:** Use `validate_llms_txt` to ensure quality
-5. **Consumption:** AI assistants automatically use generated llms.txt files
-
-### **Command-Line Interface**
-```bash
-# Generate for current directory
-llm-txt-mcp generate .
-
-# Scan project structure
-llm-txt-mcp scan D:/Dev/repos/ednaficator
-
-# Validate existing file
-llm-txt-mcp validate ./llms.txt
-
-# Convert to XML context
-llm-txt-mcp convert ./llms.txt --format xml
-```
-
-### **Error Handling**
-- **Graceful Degradation:** Generate partial documentation if some files are inaccessible
-- **Clear Error Messages:** Specific guidance for common issues
-- **Recovery Suggestions:** Actionable steps to resolve problems
-
-## 📊 Success Metrics
-
-### **Adoption Metrics**
-- **Primary:** Daily usage by Sandra's Vienna development projects
-- **Secondary:** Generation success rate > 95%
-- **Tertiary:** Integration with all major MCP-compatible tools
-
-### **Quality Metrics**
-- **Documentation Coverage:** > 80% of project files documented
-- **AI Comprehension:** Successful AI assistant interactions using generated docs
-- **Maintenance Overhead:** < 5 minutes per project per month
-
-### **Performance Metrics**
-- **Generation Speed:** Average < 3 seconds per project
-- **File Size Efficiency:** llms.txt < 50KB, llms-full.txt < 500KB
-- **Update Frequency:** Automated updates within 1 hour of code changes
-
-## 🔄 Development Phases
-
-### **Phase 1: MVP (2 days)**
-- [x] Core project structure and FastMCP integration
-- [x] Basic generation for Python/TypeScript projects
-- [x] Essential MCP tools implementation
-- [x] Claude Desktop integration testing
-
-### **Phase 2: Enhancement (3 days)**
-- [ ] Template system for all project types
-- [ ] Advanced content extraction
-- [ ] Comprehensive validation
-- [ ] Error handling and recovery
-
-### **Phase 3: Integration (2 days)**
-- [ ] Git integration for change detection
-- [ ] CI/CD pipeline components
-- [ ] Batch processing capabilities
-- [ ] Performance optimization
-
-### **Phase 4: Polish (1 day)**
-- [ ] Documentation and examples
-- [ ] DXT packaging
-- [ ] GitHub repository setup
-- [ ] Community preparation
-
-## 🎯 Vienna Development Integration
-
-### **Immediate Projects**
-1. **Ednaficator** - AI concierge system documentation
-2. **FastSearch MCP** - Search functionality documentation  
-3. **VirtualBox MCP** - VM management documentation
-4. **Local LLM MCP** - Local model integration documentation
-
-### **Workflow Integration**
-- **Pre-commit Hook:** Automatically update llms.txt on commits
-- **Claude Desktop:** Instant access to project documentation
-- **Cursor IDE:** Enhanced AI assistance with proper context
-- **Development Efficiency:** Reduce context-switching time by 50%
-
-## 🔮 Future Roadmap
-
-### **v0.3.0 - Advanced Intelligence**
-- AI-powered content analysis and optimization
-- Multi-language documentation support  
-- Advanced template customization
-- Integration with documentation platforms (Mintlify, GitBook)
-
-### **v0.4.0 - Enterprise Features**
-- Organization-wide documentation standards
-- Access control and permissions
-- Analytics and usage reporting
-- API endpoint integration
-
-### **v1.0.0 - Production Ready**
-- Commercial-grade reliability and performance
-- Enterprise support and SLA
-- Advanced customization options
-- Comprehensive integration ecosystem
-
-## ⚠️ Risks and Mitigation
-
-### **Technical Risks**
-- **Large File Handling:** Implement streaming and chunking
-- **File Format Diversity:** Robust parsing with fallback options
-- **Performance Scaling:** Async processing and caching
-
-### **Adoption Risks**
-- **Learning Curve:** Comprehensive documentation and examples
-- **Integration Complexity:** Simple setup processes and templates
-- **Maintenance Overhead:** Automated updates and minimal configuration
-
-### **Business Risks**
-- **llms.txt Standard Evolution:** Flexible architecture for specification changes
-- **Competing Solutions:** Focus on Austrian efficiency and unique Vienna use cases
-- **AI Tool Integration Changes:** Modular design for easy adaptation
-
-## 🎯 Success Definition
-
-**Primary Success:** Sandra's Vienna development team achieves 50% improvement in AI assistant effectiveness across all projects within 30 days of deployment.
-
-**Secondary Success:** LLM.txt MCP Server becomes the standard documentation automation tool for Vienna development workflows, with 100% project coverage.
-
-**Tertiary Success:** Open source adoption and community contribution, establishing Vienna as a leader in AI-first development practices.
+**Last Updated:** 2025-11-19  
+**Author:** Sandra Schipal  
+**Status:** Active Development
 
 ---
 
-**Next Steps:** Begin Phase 1 implementation with focus on MVP features and Claude Desktop integration testing.
+## Executive Summary
+
+The LLM.txt MCP Server is a Model Context Protocol (MCP) server that automates the generation, validation, and management of `llms.txt` documentation files. It makes project documentation AI-accessible by providing structured, standardized documentation indices that Large Language Models can efficiently consume.
+
+### Vision
+Enable every software project to be instantly understandable by AI systems through automated, standardized documentation generation.
+
+### Mission
+Provide developers with effortless tools to make their projects AI-accessible, reducing the barrier to AI-assisted development and documentation.
+
+---
+
+## Problem Statement
+
+### Current Challenges
+1. **Manual Documentation Burden**: Developers spend significant time creating and maintaining documentation indices for AI consumption
+2. **Inconsistent Formats**: Lack of standardization makes it difficult for AI systems to reliably parse project documentation
+3. **Documentation Drift**: Documentation quickly becomes outdated as projects evolve
+4. **Discovery Difficulty**: AI systems struggle to locate relevant documentation within complex project structures
+5. **Context Limitations**: LLMs have token limits, requiring efficient documentation summarization
+
+### Target Users
+- **Primary**: Software developers using AI coding assistants (Claude, GPT-4, etc.)
+- **Secondary**: Technical writers, DevOps engineers, open-source maintainers
+- **Tertiary**: AI researchers working with code understanding systems
+
+---
+
+## Product Goals
+
+### Primary Goals
+1. **Automation**: Generate comprehensive `llms.txt` files with minimal manual intervention
+2. **Accuracy**: Intelligently categorize and prioritize documentation based on project type
+3. **Maintainability**: Enable easy updates while preserving custom content
+4. **Integration**: Seamless integration with Claude Desktop and other MCP clients
+5. **Flexibility**: Support multiple project types, languages, and documentation structures
+
+### Success Metrics
+- **Adoption**: 1000+ active installations within 6 months
+- **Quality**: 95%+ accuracy in documentation categorization
+- **Performance**: Generate llms.txt for typical projects in <5 seconds
+- **User Satisfaction**: 4.5+ star rating on feedback surveys
+- **Coverage**: Support for 10+ major programming languages/frameworks
+
+---
+
+## Features & Requirements
+
+### Core Features (MVP)
+
+#### 1. Automated Generation
+**Priority:** P0 (Critical)
+
+**Description:** Scan project directories and automatically generate structured `llms.txt` files.
+
+**Requirements:**
+- Detect project type from configuration files (pyproject.toml, package.json, etc.)
+- Discover and categorize documentation files (README, API docs, examples)
+- Generate structured output following llms.txt specification
+- Create both `llms.txt` (index) and `llms-full.txt` (full content)
+- Support configurable scan depth (default: 3 levels)
+
+**Acceptance Criteria:**
+- Successfully generates llms.txt for Python, TypeScript, React, Rust, and Go projects
+- Categorizes files into appropriate sections (docs, api, examples, config, optional)
+- Completes generation in <5 seconds for projects with <1000 files
+- Handles edge cases (empty projects, missing README, etc.)
+
+#### 2. Validation & Quality Checks
+**Priority:** P0 (Critical)
+
+**Description:** Validate existing `llms.txt` files for format compliance and completeness.
+
+**Requirements:**
+- Check for required H1 header with project name
+- Verify blockquote summary presence
+- Validate H2 section structure
+- Check for proper markdown link formatting
+- Provide actionable warnings and suggestions
+
+**Acceptance Criteria:**
+- Identifies all format violations per llms.txt spec
+- Provides clear, actionable error messages
+- Suggests improvements for incomplete documentation
+- Returns validation score (0-100)
+
+#### 3. Smart Update Mechanism
+**Priority:** P0 (Critical)
+
+**Description:** Update existing `llms.txt` files while preserving custom user additions.
+
+**Requirements:**
+- Parse existing llms.txt structure
+- Identify custom vs. auto-generated content
+- Merge new discoveries with existing content
+- Support selective section regeneration
+- Track and report changes made
+
+**Acceptance Criteria:**
+- Preserves manually added links and sections
+- Updates outdated file references
+- Adds newly discovered documentation
+- Provides diff summary of changes
+
+#### 4. MCP Integration
+**Priority:** P0 (Critical)
+
+**Description:** Full integration with Model Context Protocol for Claude Desktop and compatible clients.
+
+**Requirements:**
+- Stdio transport support for Claude Desktop
+- HTTP transport for development/testing
+- Proper tool registration and metadata
+- Structured error handling and responses
+- Health check and status endpoints
+
+**Acceptance Criteria:**
+- Loads successfully in Claude Desktop
+- All tools accessible via MCP interface
+- Proper error messages returned to client
+- <100ms response time for health checks
+
+### Enhanced Features (Post-MVP)
+
+#### 5. Template System
+**Priority:** P1 (High)
+
+**Description:** Pre-built templates for common project types with customization options.
+
+**Requirements:**
+- Templates for Python, TypeScript, React, FastAPI, Rust, Go
+- Custom section support
+- Template inheritance and composition
+- User-defined template creation
+
+#### 6. Context Conversion
+**Priority:** P1 (High)
+
+**Description:** Convert `llms.txt` to optimized formats for LLM consumption.
+
+**Requirements:**
+- XML output format
+- JSON output format
+- Optional section filtering
+- Token-optimized output
+
+#### 7. Repository Analysis
+**Priority:** P2 (Medium)
+
+**Description:** Comprehensive analysis of repository AI accessibility with recommendations.
+
+**Requirements:**
+- AI accessibility scoring (0-100)
+- Detailed recommendations by category
+- File-by-file analysis option
+- Multiple output formats (text, JSON, markdown)
+
+#### 8. Git Integration
+**Priority:** P2 (Medium)
+
+**Description:** Leverage git repository information for enhanced analysis.
+
+**Requirements:**
+- Detect git repository status
+- Use .gitignore for file filtering
+- Extract project metadata from git config
+- Track documentation changes over time
+
+---
+
+## Technical Architecture
+
+### Technology Stack
+- **Language:** Python 3.10+
+- **Framework:** FastMCP 2.12.0+
+- **Protocol:** Model Context Protocol (MCP)
+- **Transport:** Stdio (primary), HTTP (development)
+- **Code Quality:** Ruff 0.14.5, MyPy 1.0+
+- **Testing:** Pytest 7.0+, pytest-asyncio
+
+### System Components
+
+#### 1. Core Service Layer
+- **LLMTextService**: Main service orchestrator
+- **DocumentationProject**: Project model and metadata
+- **LLMTextGenerator**: Content generation engine
+
+#### 2. Tool Layer
+- **Generation Tools**: generate_llms_txt, update_llms_txt, generate_from_template
+- **Validation Tools**: validate_llms_txt
+- **Analysis Tools**: scan_project_structure, analyze_repo
+- **Conversion Tools**: convert_to_context
+- **Utility Tools**: help, status, health_check
+
+#### 3. Utility Layer
+- **File Discovery**: Smart file categorization and prioritization
+- **Template Engine**: Template loading and rendering
+- **Parser**: llms.txt format parsing
+- **Validator**: Format and content validation
+
+### Data Flow
+```
+User Request (MCP Client)
+    ↓
+FastMCP Server (stdio/HTTP)
+    ↓
+Tool Router
+    ↓
+Service Layer (LLMTextService)
+    ↓
+Generator/Validator/Analyzer
+    ↓
+File System Operations
+    ↓
+Response (structured JSON)
+    ↓
+MCP Client
+```
+
+---
+
+## User Experience
+
+### Primary Use Cases
+
+#### Use Case 1: First-Time Setup
+**Actor:** Developer setting up AI accessibility for a new project
+
+**Flow:**
+1. Install llm-txt-mcp via pip
+2. Configure in Claude Desktop config
+3. Restart Claude Desktop
+4. Use `generate_llms_txt(project_path="/path/to/project")`
+5. Review generated llms.txt
+6. Commit to repository
+
+**Expected Outcome:** Complete, accurate llms.txt generated in <30 seconds
+
+#### Use Case 2: Documentation Update
+**Actor:** Developer updating project after adding new features
+
+**Flow:**
+1. Add new documentation files
+2. Use `update_llms_txt(project_path="/path/to/project")`
+3. Review changes summary
+4. Verify custom content preserved
+5. Commit updated llms.txt
+
+**Expected Outcome:** Updated llms.txt with new content, custom sections preserved
+
+#### Use Case 3: Quality Audit
+**Actor:** Technical writer auditing documentation quality
+
+**Flow:**
+1. Use `validate_llms_txt(file_path="/path/to/llms.txt")`
+2. Review validation report
+3. Address errors and warnings
+4. Use `analyze_repo()` for comprehensive analysis
+5. Implement recommendations
+
+**Expected Outcome:** Clear action items for improving AI accessibility
+
+---
+
+## Non-Functional Requirements
+
+### Performance
+- **Generation Speed:** <5 seconds for projects with <1000 files
+- **Validation Speed:** <1 second for typical llms.txt files
+- **Memory Usage:** <100MB for typical operations
+- **Startup Time:** <2 seconds for MCP server initialization
+
+### Reliability
+- **Uptime:** 99.9% availability for MCP server
+- **Error Handling:** Graceful degradation, no crashes
+- **Data Integrity:** No data loss during updates
+- **Backward Compatibility:** Support llms.txt spec v1.0+
+
+### Security
+- **File Access:** Respect file permissions and .gitignore
+- **Path Traversal:** Prevent directory traversal attacks
+- **Input Validation:** Sanitize all user inputs
+- **No External Calls:** No network requests without explicit user consent
+
+### Usability
+- **Documentation:** Comprehensive README and inline help
+- **Error Messages:** Clear, actionable error descriptions
+- **Defaults:** Sensible defaults requiring minimal configuration
+- **Discoverability:** Self-documenting via `help` tool
+
+---
+
+## Development Roadmap
+
+### Phase 1: MVP (Completed)
+- ✅ Core generation engine
+- ✅ MCP server implementation
+- ✅ Basic validation
+- ✅ Claude Desktop integration
+- ✅ Python 3.10+ support
+- ✅ Ruff integration
+
+### Phase 2: Enhancement (Current)
+- 🔄 Comprehensive testing suite
+- 🔄 Template system
+- 🔄 Repository analysis
+- 🔄 Documentation improvements
+- 🔄 Type safety improvements (MyPy)
+
+### Phase 3: Advanced Features (Planned)
+- ⏳ Multi-language support (beyond English)
+- ⏳ Custom plugin system
+- ⏳ CI/CD integration
+- ⏳ Web UI for configuration
+- ⏳ Analytics and usage tracking
+
+### Phase 4: Ecosystem (Future)
+- ⏳ IDE extensions (VS Code, JetBrains)
+- ⏳ GitHub Action
+- ⏳ Pre-commit hooks
+- ⏳ Community template marketplace
+
+---
+
+## Success Criteria
+
+### Launch Criteria
+- [ ] All P0 features implemented and tested
+- [ ] Documentation complete (README, API docs, examples)
+- [ ] Test coverage >80%
+- [ ] Zero critical bugs
+- [ ] Claude Desktop integration verified
+- [ ] Performance benchmarks met
+
+### Post-Launch Metrics (3 months)
+- 500+ GitHub stars
+- 100+ active installations
+- <10 open critical bugs
+- 90%+ positive user feedback
+- 5+ community contributions
+
+---
+
+## Risks & Mitigation
+
+### Technical Risks
+| Risk | Impact | Probability | Mitigation |
+|------|--------|-------------|------------|
+| MCP spec changes | High | Medium | Monitor spec, maintain compatibility layer |
+| Performance degradation on large repos | Medium | High | Implement caching, configurable limits |
+| File encoding issues | Medium | Medium | Robust encoding detection, fallbacks |
+| Type checking overhead | Low | Low | Gradual MyPy adoption, pragmatic approach |
+
+### Business Risks
+| Risk | Impact | Probability | Mitigation |
+|------|--------|-------------|------------|
+| Low adoption | High | Medium | Active marketing, documentation, examples |
+| Competing solutions | Medium | High | Focus on quality, MCP integration advantage |
+| Maintenance burden | Medium | Medium | Community engagement, clear contribution guidelines |
+
+---
+
+## Appendix
+
+### References
+- [llms.txt Specification](https://llms-txt.org/)
+- [Model Context Protocol](https://modelcontextprotocol.io/)
+- [FastMCP Documentation](https://github.com/jlowin/fastmcp)
+
+### Glossary
+- **MCP**: Model Context Protocol - Standard for AI tool integration
+- **llms.txt**: Standardized documentation index file for AI systems
+- **Stdio**: Standard input/output transport mechanism
+- **FastMCP**: Python framework for building MCP servers
+
+---
+
+**Document Control**
+- **Version History:**
+  - v1.0 (2025-11-19): Initial PRD creation
+- **Approvals:** Sandra Schipal (Author/Owner)
+- **Next Review:** 2025-12-19

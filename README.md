@@ -2,8 +2,9 @@
 
 > Automated generation and management of llms.txt documentation files for AI accessibility
 
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![FastMCP](https://img.shields.io/badge/FastMCP-2.10.1+-green.svg)](https://github.com/jlowin/fastmcp)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![FastMCP](https://img.shields.io/badge/FastMCP-2.12.0+-green.svg)](https://github.com/jlowin/fastmcp)
+[![Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 The LLM.txt MCP Server provides comprehensive tools for generating, validating, and managing `llms.txt` files that make project documentation accessible to AI systems. Built with FastMCP for seamless integration with Claude Desktop and other MCP-compatible clients.
@@ -20,8 +21,8 @@ The LLM.txt MCP Server provides comprehensive tools for generating, validating, 
 
 ## 📋 Requirements
 
-- Python 3.9 or higher
-- FastMCP 2.10.1+
+- Python 3.10 or higher
+- FastMCP 2.12.0+
 - Git (optional, for enhanced project analysis)
 
 ## 🛠️ Installation
@@ -303,10 +304,12 @@ pytest --cov=llm_txt_mcp tests/
 ### Code Quality
 
 ```bash
-black llm_txt_mcp/
-isort llm_txt_mcp/
-mypy llm_txt_mcp/
-pylint llm_txt_mcp/
+# Linting and formatting (using Ruff)
+ruff check .
+ruff format .
+
+# Type checking
+mypy .
 ```
 
 ### Local Development
