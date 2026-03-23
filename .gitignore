@@ -55,3 +55,5 @@ Thumbs.db
 *.tmp
 mypy_errors.txt
 mypy_errors_2.txt
+# Rust / Zed IDE — rust-analyzer may create target/ at repo root
+target/
