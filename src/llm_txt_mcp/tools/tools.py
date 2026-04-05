@@ -1,11 +1,19 @@
 """Main tool definitions for LLM.txt MCP server."""
 
 import logging
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from ..exceptions import (
+    FileOperationError,
+    GenerationError,
+    ProjectAnalysisError,
+    ValidationError,
+)
 from ..models.service import LLMTextService
+from ..utils.logging import get_logger, log_with_context
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # Global service instance
 _service_instance: Optional[LLMTextService] = None
@@ -28,9 +36,43 @@ async def generate_llms_txt_tool(
 ) -> Dict[str, Any]:
     """Generate llms.txt files for a project."""
     try:
-        logger.info(f"Generating llms.txt for project: {project_path}")
-        service = get_service()
+        # Validate inputs
+        if not project_path:
+            raise ValidationError("project_path is required", field="project_path")
+        
+        project_path_obj = Path(project_path)
+        if not project_path_obj.exists():
+            raise ProjectAnalysisError(
+                f"Project path does not exist: {project_path}",
+                project_path=project_path,
+            )
+        
+        if not project_path_obj.is_dir():
+            raise ProjectAnalysisError(
+                f"Project path is not a directory: {project_path}",
+                project_path=project_path,
+            )
 
+        if scan_depth < 1 or scan_depth > 10:
+            raise ValidationError(
+                "scan_depth must be between 1 and 10",
+                field="scan_depth",
+                value=scan_depth,
+            )
+
+        log_with_context(
+            logger,
+            logging.INFO,
+            "Generating llms.txt for project",
+            context={
+                "project_path": project_path,
+                "output_path": output_path,
+                "include_optional": include_optional,
+                "scan_depth": scan_depth,
+            },
+        )
+
+        service = get_service()
         result = await service.generate_project_llms_txt(
             project_path=project_path,
             output_path=output_path,
@@ -38,28 +80,76 @@ async def generate_llms_txt_tool(
             scan_depth=scan_depth,
         )
 
-        logger.info(f"Successfully generated llms.txt files: {result}")
+        log_with_context(
+            logger,
+            logging.INFO,
+            "Successfully generated llms.txt files",
+            context={"project_path": project_path, "result": result},
+        )
         return result
 
-    except Exception as e:
-        logger.error(f"Error generating llms.txt for {project_path}: {e}")
+    except (ValidationError, ProjectAnalysisError, GenerationError) as e:
+        log_with_context(
+            logger,
+            logging.ERROR,
+            f"Error generating llms.txt: {e.message}",
+            context={"project_path": project_path, "error": e.to_dict()},
+        )
         raise
+    except Exception as e:
+        logger.exception(f"Unexpected error generating llms.txt for {project_path}")
+        raise GenerationError(
+            f"Failed to generate llms.txt: {str(e)}",
+            generation_type="llms_txt",
+        ) from e
 
 
 async def validate_llms_txt_tool(file_path: str) -> Dict[str, Any]:
     """Validate an llms.txt file."""
     try:
-        logger.info(f"Validating llms.txt file: {file_path}")
-        service = get_service()
+        if not file_path:
+            raise ValidationError("file_path is required", field="file_path")
+        
+        file_path_obj = Path(file_path)
+        if not file_path_obj.exists():
+            raise FileOperationError(
+                f"File does not exist: {file_path}",
+                file_path=file_path,
+                operation="read",
+            )
 
+        log_with_context(
+            logger,
+            logging.INFO,
+            "Validating llms.txt file",
+            context={"file_path": file_path},
+        )
+
+        service = get_service()
         result = await service.validate_llms_txt(file_path=file_path)
 
-        logger.info(f"Validation completed for {file_path}: {result}")
+        log_with_context(
+            logger,
+            logging.INFO,
+            "Validation completed",
+            context={"file_path": file_path, "is_valid": result.get("is_valid")},
+        )
         return result
 
-    except Exception as e:
-        logger.error(f"Error validating llms.txt file {file_path}: {e}")
+    except (ValidationError, FileOperationError) as e:
+        log_with_context(
+            logger,
+            logging.ERROR,
+            f"Error validating llms.txt: {e.message}",
+            context={"file_path": file_path, "error": e.to_dict()},
+        )
         raise
+    except Exception as e:
+        logger.exception(f"Unexpected error validating llms.txt file {file_path}")
+        raise ValidationError(
+            f"Failed to validate llms.txt: {str(e)}",
+            field="file_path",
+        ) from e
 
 
 async def update_llms_txt_tool(
@@ -69,21 +159,56 @@ async def update_llms_txt_tool(
 ) -> Dict[str, Any]:
     """Update an existing llms.txt file."""
     try:
-        logger.info(f"Updating llms.txt for project: {project_path}")
-        service = get_service()
+        if not project_path:
+            raise ValidationError("project_path is required", field="project_path")
+        
+        project_path_obj = Path(project_path)
+        if not project_path_obj.exists():
+            raise ProjectAnalysisError(
+                f"Project path does not exist: {project_path}",
+                project_path=project_path,
+            )
 
+        log_with_context(
+            logger,
+            logging.INFO,
+            "Updating llms.txt for project",
+            context={
+                "project_path": project_path,
+                "regenerate_sections": regenerate_sections,
+                "preserve_custom_content": preserve_custom_content,
+            },
+        )
+
+        service = get_service()
         result = await service.update_llms_txt(
             project_path=project_path,
             regenerate_sections=regenerate_sections,
             preserve_custom_content=preserve_custom_content,
         )
 
-        logger.info(f"Successfully updated llms.txt: {result}")
+        log_with_context(
+            logger,
+            logging.INFO,
+            "Successfully updated llms.txt",
+            context={"project_path": project_path, "result": result},
+        )
         return result
 
-    except Exception as e:
-        logger.error(f"Error updating llms.txt for {project_path}: {e}")
+    except (ValidationError, ProjectAnalysisError, FileOperationError) as e:
+        log_with_context(
+            logger,
+            logging.ERROR,
+            f"Error updating llms.txt: {e.message}",
+            context={"project_path": project_path, "error": e.to_dict()},
+        )
         raise
+    except Exception as e:
+        logger.exception(f"Unexpected error updating llms.txt for {project_path}")
+        raise GenerationError(
+            f"Failed to update llms.txt: {str(e)}",
+            generation_type="update",
+        ) from e
 
 
 async def convert_to_context_tool(
@@ -91,21 +216,64 @@ async def convert_to_context_tool(
 ) -> Dict[str, Any]:
     """Convert llms.txt to LLM context format."""
     try:
-        logger.info(f"Converting llms.txt to {output_format}: {llms_txt_path}")
-        service = get_service()
+        if not llms_txt_path:
+            raise ValidationError("llms_txt_path is required", field="llms_txt_path")
+        
+        if output_format not in ["xml", "json"]:
+            raise ValidationError(
+                f"Invalid output_format: {output_format}. Must be 'xml' or 'json'",
+                field="output_format",
+                value=output_format,
+            )
 
+        file_path_obj = Path(llms_txt_path)
+        if not file_path_obj.exists():
+            raise FileOperationError(
+                f"File does not exist: {llms_txt_path}",
+                file_path=llms_txt_path,
+                operation="read",
+            )
+
+        log_with_context(
+            logger,
+            logging.INFO,
+            "Converting llms.txt to context format",
+            context={
+                "llms_txt_path": llms_txt_path,
+                "output_format": output_format,
+                "include_optional": include_optional,
+            },
+        )
+
+        service = get_service()
         result = await service.convert_to_context(
             llms_txt_path=llms_txt_path,
             output_format=output_format,
             include_optional=include_optional,
         )
 
-        logger.info(f"Successfully converted llms.txt: {result}")
+        log_with_context(
+            logger,
+            logging.INFO,
+            "Successfully converted llms.txt",
+            context={"llms_txt_path": llms_txt_path, "result": result},
+        )
         return result
 
-    except Exception as e:
-        logger.error(f"Error converting llms.txt {llms_txt_path}: {e}")
+    except (ValidationError, FileOperationError) as e:
+        log_with_context(
+            logger,
+            logging.ERROR,
+            f"Error converting llms.txt: {e.message}",
+            context={"llms_txt_path": llms_txt_path, "error": e.to_dict()},
+        )
         raise
+    except Exception as e:
+        logger.exception(f"Unexpected error converting llms.txt {llms_txt_path}")
+        raise GenerationError(
+            f"Failed to convert llms.txt: {str(e)}",
+            generation_type="conversion",
+        ) from e
 
 
 async def scan_project_structure_tool(
@@ -113,19 +281,61 @@ async def scan_project_structure_tool(
 ) -> Dict[str, Any]:
     """Scan and analyze project structure."""
     try:
-        logger.info(f"Scanning project structure: {project_path}")
-        service = get_service()
+        if not project_path:
+            raise ValidationError("project_path is required", field="project_path")
+        
+        project_path_obj = Path(project_path)
+        if not project_path_obj.exists():
+            raise ProjectAnalysisError(
+                f"Project path does not exist: {project_path}",
+                project_path=project_path,
+            )
 
+        if scan_depth < 1 or scan_depth > 10:
+            raise ValidationError(
+                "scan_depth must be between 1 and 10",
+                field="scan_depth",
+                value=scan_depth,
+            )
+
+        log_with_context(
+            logger,
+            logging.INFO,
+            "Scanning project structure",
+            context={
+                "project_path": project_path,
+                "scan_depth": scan_depth,
+                "include_hidden": include_hidden,
+            },
+        )
+
+        service = get_service()
         result = await service.scan_project_structure(
             project_path=project_path, scan_depth=scan_depth, include_hidden=include_hidden
         )
 
-        logger.info(f"Project structure scan completed: {result}")
+        log_with_context(
+            logger,
+            logging.INFO,
+            "Project structure scan completed",
+            context={"project_path": project_path, "result": result},
+        )
         return result
 
-    except Exception as e:
-        logger.error(f"Error scanning project structure {project_path}: {e}")
+    except (ValidationError, ProjectAnalysisError) as e:
+        log_with_context(
+            logger,
+            logging.ERROR,
+            f"Error scanning project structure: {e.message}",
+            context={"project_path": project_path, "error": e.to_dict()},
+        )
         raise
+    except Exception as e:
+        logger.exception(f"Unexpected error scanning project structure {project_path}")
+        raise ProjectAnalysisError(
+            f"Failed to scan project structure: {str(e)}",
+            project_path=project_path,
+        ) from e
 
 
 async def generate_from_template_tool(
@@ -135,19 +345,67 @@ async def generate_from_template_tool(
 ) -> Dict[str, Any]:
     """Generate llms.txt from a template."""
     try:
-        logger.info(f"Generating llms.txt from template '{template_name}' for: {project_path}")
-        service = get_service()
+        if not project_path:
+            raise ValidationError("project_path is required", field="project_path")
+        
+        if not template_name:
+            raise ValidationError("template_name is required", field="template_name")
 
+        project_path_obj = Path(project_path)
+        if not project_path_obj.exists():
+            raise ProjectAnalysisError(
+                f"Project path does not exist: {project_path}",
+                project_path=project_path,
+            )
+
+        log_with_context(
+            logger,
+            logging.INFO,
+            "Generating llms.txt from template",
+            context={
+                "project_path": project_path,
+                "template_name": template_name,
+                "has_custom_sections": custom_sections is not None,
+            },
+        )
+
+        service = get_service()
         result = await service.generate_from_template(
             project_path=project_path, template_name=template_name, custom_sections=custom_sections
         )
 
-        logger.info(f"Template generation completed: {result}")
+        log_with_context(
+            logger,
+            logging.INFO,
+            "Template generation completed",
+            context={
+                "project_path": project_path,
+                "template_name": template_name,
+                "result": result,
+            },
+        )
         return result
 
-    except Exception as e:
-        logger.error(f"Error generating from template {template_name} for {project_path}: {e}")
+    except (ValidationError, ProjectAnalysisError, GenerationError) as e:
+        log_with_context(
+            logger,
+            logging.ERROR,
+            f"Error generating from template: {e.message}",
+            context={
+                "project_path": project_path,
+                "template_name": template_name,
+                "error": e.to_dict(),
+            },
+        )
         raise
+    except Exception as e:
+        logger.exception(
+            f"Unexpected error generating from template {template_name} for {project_path}"
+        )
+        raise GenerationError(
+            f"Failed to generate from template: {str(e)}",
+            generation_type="template",
+        ) from e
 
 
 # Include additional tools

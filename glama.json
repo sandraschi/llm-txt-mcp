@@ -1,0 +1,44 @@
+{
+  "$schema": "https://glama.ai/mcp/schemas/server.json",
+  "maintainers": ["sandraschi"],
+  "name": "llm-txt-mcp",
+  "description": "LLM.txt file generator and manager for creating standardized documentation. Includes Q-BERT game interface and comprehensive MCP tooling.",
+  "type": "mcp_server",
+  "status": "beta",
+  "framework": "FastMCP 2.13+",
+  "tools": 10,
+  "transport": ["stdio"],
+  "keywords": [
+    "llm-txt",
+    "documentation",
+    "generator",
+    "q-bert",
+    "game-interface",
+    "standards",
+    "fastmcp",
+    "ai-documentation"
+  ],
+  "features": {
+    "file_generation": {
+      "enabled": true,
+      "formats": ["llm-txt", "markdown", "structured-docs"]
+    },
+    "content_analysis": {
+      "enabled": true,
+      "capabilities": ["text-processing", "structure-detection", "metadata-extraction"]
+    },
+    "game_interface": {
+      "enabled": true,
+      "games": ["q-bert"],
+      "purpose": "interactive-documentation"
+    },
+    "standards_compliance": {
+      "enabled": true,
+      "standards": ["llm-txt-spec", "mcp-standards"]
+    },
+    "service_management": {
+      "enabled": true,
+      "operations": ["status-monitoring", "health-checks", "configuration"]
+    }
+  }
+}

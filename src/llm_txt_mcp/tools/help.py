@@ -3,9 +3,11 @@
 import logging
 from typing import Any, Dict, List, Optional
 
+from ..utils.logging import get_logger, log_with_context
+
 # Note: mcp is not imported here to avoid circular imports
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 # Tool function without decorator - will be registered in server.py
@@ -26,7 +28,12 @@ async def help_tool(
         dict: Help information including tool descriptions, parameters, and examples
     """
     try:
-        logger.info(f"Providing help information (tool: {tool_name}, category: {category})")
+        log_with_context(
+            logger,
+            logging.INFO,
+            "Providing help information",
+            context={"tool_name": tool_name, "category": category},
+        )
 
         # Get all registered tools
         # Get all registered tools
@@ -176,8 +183,8 @@ async def help_tool(
             ),
         }
 
-    except Exception as e:
-        logger.error(f"Error providing help: {e}")
+    except Exception:
+        logger.exception("Error providing help")
         raise
 
 

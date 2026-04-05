@@ -1,0 +1,28 @@
+# llm-txt-mcp
+> > **Purpose**: Comprehensive GitHub configuration guide to avoid hours of trial-and-error setup. > > **Copy this to new MCP repos** to get everything right the first time! --- 1. [Quick Setup Checklis...
+
+This project includes automated llms.txt generation for AI accessibility.
+
+## Docs
+- [Readme](docs\github\README.md): > **Purpose**: Comprehensive GitHub configuration guide to avoid hours of trial-and-error setup.
+- [Readme](docs\glama\README.md): This directory contains documentation related to achieving GLAMA AI Gold standard status for the LLM...
+- [Readme](README.md): > Automated generation and management of llms.txt documentation files for AI accessibility
+- [Readme](docs\mcpb-packaging\README.md): **Complete guide to packaging and distributing MCP servers with MCPB**
+- [Complete Setup Guide](docs\github\COMPLETE_SETUP_GUIDE.md): > **6 hours of pain distilled into 30 minutes of setup**
+- [Megatest Framework Complete](docs\testing\MEGATEST_FRAMEWORK_COMPLETE.md): After extensive design and documentation, the **Universal MCP Megatest Framework** is production-rea...
+- [Qbert Memory](docs\QBERT_MEMORY.md): **Objective**: Create an exact clone of the arcade game Q*bert using HTML5 Canvas and Vanilla JavaSc...
+- [Dependency Management](docs\github\DEPENDENCY_MANAGEMENT.md): > **Single source of truth** - How to avoid "missing dependency" disasters
+- [Pypi Publishing Guide](docs\mcpb-packaging\PYPI_PUBLISHING_GUIDE.md): **Complete guide to publishing llm-txt-mcp on the Python Package Index (PyPI)**
+- [Contributing](CONTRIBUTING.md): Thank you for your interest in contributing to LLM.txt MCP Server! This document provides guidelines...
+
+## Api
+- [Service](src\llm_txt_mcp\models\service.py): Models definitions and implementations
+
+## Configuration
+- [Pyproject](pyproject.toml): Python project configuration and dependencies
+- [Package](web_sota\package.json): Node.js project configuration and dependencies
+- [Config](.git\config): Application configuration files
+
+## Optional
+- [Changelog](CHANGELOG.md): Project changelog information
+- [Contributing](CONTRIBUTING.md): Project contributing information

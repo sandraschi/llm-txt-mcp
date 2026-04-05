@@ -3,12 +3,14 @@ import logging
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List
 
+from ..exceptions import ProjectAnalysisError
+from ..utils.logging import get_logger, log_with_context
 from .tools import get_service
 
 if TYPE_CHECKING:
     from ..models.service import DocumentationProject, LLMTextService
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 # Tool function without decorator - will be registered in server.py
@@ -31,7 +33,22 @@ async def analyze_repo_tool(
         dict: Comprehensive repository analysis with recommendations
     """
     try:
-        logger.info(f"Analyzing repository: {repo_path}")
+        if not repo_path:
+            raise ProjectAnalysisError("repo_path is required", project_path=repo_path or "")
+
+        repo_path_obj = Path(repo_path)
+        if not repo_path_obj.exists():
+            raise ProjectAnalysisError(
+                f"Repository path does not exist: {repo_path}",
+                project_path=repo_path,
+            )
+
+        log_with_context(
+            logger,
+            logging.INFO,
+            "Analyzing repository",
+            context={"repo_path": repo_path, "include_analysis": include_analysis},
+        )
 
         # Create project instance for analysis
         project = DocumentationProject(Path(repo_path))
@@ -60,12 +77,28 @@ async def analyze_repo_tool(
             "ai_accessibility_score": _calculate_accessibility_score(analysis),
         }
 
-        logger.info(f"Repository analysis completed for: {repo_path}")
+        log_with_context(
+            logger,
+            logging.INFO,
+            "Repository analysis completed",
+            context={"repo_path": repo_path, "success": True},
+        )
         return result
 
-    except Exception as e:
-        logger.error(f"Error analyzing repository {repo_path}: {e}")
+    except ProjectAnalysisError as e:
+        log_with_context(
+            logger,
+            logging.ERROR,
+            f"Error analyzing repository: {e.message}",
+            context={"repo_path": repo_path, "error": e.to_dict()},
+        )
         raise
+    except Exception as e:
+        logger.exception(f"Unexpected error analyzing repository {repo_path}")
+        raise ProjectAnalysisError(
+            f"Failed to analyze repository: {str(e)}",
+            project_path=repo_path,
+        ) from e
 
 
 async def _perform_comprehensive_analysis(

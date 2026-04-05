@@ -9,7 +9,7 @@
 
 The LLM.txt MCP Server provides comprehensive tools for generating, validating, and managing `llms.txt` files that make project documentation accessible to AI systems. Built with FastMCP for seamless integration with Claude Desktop and other MCP-compatible clients.
 
-## 🚀 Features
+##  Features
 
 - **Automated Generation**: Scan project directories and auto-generate structured llms.txt files
 - **Multi-Language Support**: Detect and handle Python, TypeScript, React, FastAPI, Rust, Go, and more
@@ -19,31 +19,65 @@ The LLM.txt MCP Server provides comprehensive tools for generating, validating, 
 - **Context Conversion**: Convert llms.txt to XML/JSON formats optimized for LLM consumption
 - **Git Integration**: Leverage git repository information for enhanced project analysis
 
-## 📋 Requirements
+##  Requirements
 
 - Python 3.11 or higher
 - FastMCP 2.12.0+
 - Git (optional, for enhanced project analysis)
 
-## 🛠️ Installation
+##  Installation
 
+### Prerequisites
+- [uv](https://docs.astral.sh/uv/) installed (RECOMMENDED)
+- Python 3.12+
+
+###  Quick Start
+Run immediately via `uvx`:
+```bash
+uvx llm-txt-mcp
+```
+
+###  Claude Desktop Integration
+Add to your `claude_desktop_config.json`:
+```json
+"mcpServers": {
+  "llm-txt-mcp": {
+    "command": "uv",
+    "args": ["--directory", "D:/Dev/repos/llm-txt-mcp", "run", "llm-txt-mcp"]
+  }
+}
+```
 ### From Source
 
 ```bash
 git clone https://github.com/sandraschi/llm-txt-mcp.git
 cd llm-txt-mcp
-pip install -e .
+uv pip install -e .
 ```
 
-### Development Installation
+##  Installation
 
+### Prerequisites
+- [uv](https://docs.astral.sh/uv/) installed (RECOMMENDED)
+- Python 3.12+
+
+###  Quick Start
+Run immediately via `uvx`:
 ```bash
-git clone https://github.com/sandraschi/llm-txt-mcp.git
-cd llm-txt-mcp
-pip install -e ".[dev]"
+uvx llm-txt-mcp
 ```
 
-## ⚙️ Configuration
+###  Claude Desktop Integration
+Add to your `claude_desktop_config.json`:
+```json
+"mcpServers": {
+  "llm-txt-mcp": {
+    "command": "uv",
+    "args": ["--directory", "D:/Dev/repos/llm-txt-mcp", "run", "llm-txt-mcp"]
+  }
+}
+```
+##  Configuration
 
 ### Claude Desktop Integration (Recommended)
 
@@ -81,7 +115,7 @@ python scripts/run_server.py --stdio  # For Claude Desktop
 python scripts/run_server.py --host 127.0.0.1 --port 8000  # For HTTP
 ```
 
-## 🔧 Available Tools
+##  Available Tools
 
 ### Core Generation Tools
 
@@ -167,7 +201,7 @@ Analyze repository for AI accessibility and provide comprehensive recommendation
 - `include_analysis` (boolean, optional): Include detailed file-by-file analysis
 - `output_format` (string, optional): Output format ("text", "json", "markdown")
 
-## 📚 Usage Examples
+##  Usage Examples
 
 ### Generate llms.txt for a Python Project
 
@@ -227,16 +261,16 @@ scan_project_structure(project_path="/home/user/my-project")
 generate_from_template(project_path="/home/user/my-project", template_name="python")
 ```
 
-## 📁 Generated File Structure
+##  Generated File Structure
 
 The tool generates structured documentation:
 
 ```
 your-project/
-├── llms.txt              # Main documentation index
-├── llms-full.txt         # Complete content inclusion
-├── llms.ctx.xml          # XML context (if converted)
-└── llms.ctx.json         # JSON context (if converted)
+ llms.txt              # Main documentation index
+ llms-full.txt         # Complete content inclusion
+ llms.ctx.xml          # XML context (if converted)
+ llms.ctx.json         # JSON context (if converted)
 ```
 
 ### Example llms.txt Output
@@ -268,7 +302,7 @@ your-project/
 - [Contributing](CONTRIBUTING.md): Guidelines for contributors
 ```
 
-## 🎯 Project Type Detection
+##  Project Type Detection
 
 Automatically detects project types based on key files:
 
@@ -282,7 +316,7 @@ Automatically detects project types based on key files:
 | **Go** | `go.mod`, `go.sum`, `main.go` | API, Examples |
 | **Generic** | Any other structure | Docs, Examples, Optional |
 
-## 🔍 Smart Documentation Discovery
+##  Smart Documentation Discovery
 
 The system intelligently categorizes documentation:
 
@@ -292,7 +326,7 @@ The system intelligently categorizes documentation:
 - **Configuration**: Project configs, environment files, settings
 - **Optional**: Changelog, contributing guidelines, license info
 
-## 🧪 Development
+##  Development
 
 ### Running Tests
 
@@ -325,12 +359,12 @@ python -m llm_txt_mcp.server
 python -c "from llm_txt_mcp.service import LLMTextService; print('Service loaded')"
 ```
 
-## 🤝 Contributing
+##  Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create a feature branch (`git checkout -b feature/-feature`)
+3. Commit your changes (`git commit -m 'Add  feature'`)
+4. Push to the branch (`git push origin feature/-feature`)
 5. Open a Pull Request
 
 ### Development Guidelines
@@ -340,21 +374,33 @@ python -c "from llm_txt_mcp.service import LLMTextService; print('Service loaded
 - Update documentation as needed
 - Ensure all tests pass before submitting
 
-## 📄 License
+##  License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - Built with [FastMCP](https://github.com/jlowin/fastmcp) for seamless MCP integration
 - Inspired by the growing need for AI-accessible documentation
 - Thanks to the Anthropic team for the MCP specification
 
-## 🔗 Related Projects
+##  Related Projects
 
 - [FastMCP](https://github.com/jlowin/fastmcp) - Fast Model Context Protocol implementation
 - [llms.txt specification](https://llms-txt.org/) - The standard for AI-readable documentation
 
 ---
 
-**Made with ❤️ for the AI development community**
+**Made with  for the AI development community**
+
+
+##  Webapp Dashboard
+
+This MCP server includes a free, premium web interface for monitoring and control.
+By default, the web dashboard runs on port **10836**.
+*(Assigned ports: **10836** (Web dashboard frontend), **10837** (Web dashboard backend (API)))*
+
+To start the webapp:
+1. Navigate to the `webapp` (or `web`, `frontend`) directory.
+2. Run `start.bat` (Windows) or `./start.ps1` (PowerShell).
+3. Open `http://localhost:10836` in your browser.

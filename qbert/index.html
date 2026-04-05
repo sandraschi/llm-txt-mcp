@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q*bert Clone</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="ui-layer">
+            <div id="score-board">
+                <div class="score-entry">
+                    <span class="label">PLAYER 1</span>
+                    <span id="p1-score" class="value">0</span>
+                </div>
+                <div class="score-entry">
+                    <span class="label">CHANGE TO:</span>
+                    <div id="target-color-display"></div>
+                </div>
+                <div class="score-entry">
+                    <span class="label">LEVEL</span>
+                    <span id="level-display" class="value">1</span>
+                </div>
+                <div class="score-entry">
+                    <span class="label">ROUND</span>
+                    <span id="round-display" class="value">1</span>
+                </div>
+            </div>
+            <div id="start-screen" class="overlay">
+                <h1>Q*BERT</h1>
+                <p>PRESS ENTER TO START</p>
+                <p class="controls">ARROWS TO MOVE</p>
+            </div>
+            <div id="game-over-screen" class="overlay hidden">
+                <h1>GAME OVER</h1>
+                <p>FINAL SCORE: <span id="final-score">0</span></p>
+                <p>PRESS ENTER TO RESTART</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/constants.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/grid.js"></script>
+    <script src="js/entities.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

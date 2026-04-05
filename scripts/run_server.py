@@ -7,7 +7,6 @@ transport modes (stdio for Claude Desktop or HTTP for testing).
 """
 
 import argparse
-import logging
 import sys
 from pathlib import Path
 
@@ -15,12 +14,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from llm_txt_mcp.server import LLMTextMCP
+from llm_txt_mcp.utils.logging import get_logger, setup_logging
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+# Configure structured logging
+setup_logging(level="INFO", use_json=True, stream=sys.stderr)
+logger = get_logger(__name__)
 
 
 def main():
@@ -62,25 +60,49 @@ Examples:
 
     args = parser.parse_args()
 
-    # Configure logging level
-    logging.getLogger().setLevel(getattr(logging, args.log_level))
+    # Reconfigure logging with requested level
+    setup_logging(level=args.log_level, use_json=True, stream=sys.stderr)
 
     try:
-        logger.info(f"Starting LLM.txt MCP server (log level: {args.log_level})")
+        import logging as log_module
+
+        from llm_txt_mcp.utils.logging import log_with_context
+
+        log_with_context(
+            logger,
+            log_module.INFO,
+            "Starting LLM.txt MCP server",
+            context={"log_level": args.log_level},
+        )
         server = LLMTextMCP()
 
         if args.stdio:
-            logger.info("Running with stdio transport for Claude Desktop")
+            log_with_context(
+                logger,
+                log_module.INFO,
+                "Running with stdio transport for Claude Desktop",
+                context={"transport": "stdio"},
+            )
             server.run_stdio()
         else:
-            logger.info(f"Running HTTP server on {args.host}:{args.port}")
+            log_with_context(
+                logger,
+                log_module.INFO,
+                "Running HTTP server",
+                context={"transport": "http", "host": args.host, "port": args.port},
+            )
             server.run_http(host=args.host, port=args.port)
 
     except KeyboardInterrupt:
-        logger.info("Server stopped by user")
+        log_with_context(
+            logger,
+            log_module.INFO,
+            "Server stopped by user",
+            context={"reason": "keyboard_interrupt"},
+        )
         sys.exit(0)
-    except Exception as e:
-        logger.error(f"Server error: {e}")
+    except Exception:
+        logger.exception("Server error", exc_info=True)
         sys.exit(1)
 
 

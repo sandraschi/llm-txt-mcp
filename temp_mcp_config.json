@@ -1,0 +1,62 @@
+{
+    "mcpServers": {
+        "memory": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-memory"
+            ]
+        },
+        "filesystem": {
+            "command": "py",
+            "args": [
+                "-3.13",
+                "-m",
+                "filesystem_mcp"
+            ],
+            "cwd": "d:/dev/repos/filesystem-mcp",
+            "env": {
+                "PYTHONPATH": "d:/dev/repos/filesystem-mcp/src",
+                "PYTHONUNBUFFERED": "1",
+                "FASTMCP_LOG_LEVEL": "INFO"
+            }
+        },
+        "mcp-server-docker": {
+            "command": "uvx",
+            "args": [
+                "mcp-server-docker"
+            ]
+        },
+        "fetch": {
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "mcp/fetch"
+            ]
+        },
+        "brightdata": {
+            "command": "npx",
+            "args": [
+                "@brightdata/mcp"
+            ],
+            "env": {
+                "API_TOKEN": "991ea6a987fd04cbbb852552d8249c0f755b64055e2c7dfad9ae65ef51d4b001"
+            }
+        },
+        "fastsearch-mcp": {
+            "command": "py",
+            "args": [
+                "-3.13",
+                "-m",
+                "fastsearch_mcp"
+            ],
+            "env": {
+                "PYTHONPATH": "D:\\Dev\\repos\\fastsearch-mcp\\src",
+                "PYTHONUNBUFFERED": "1"
+            },
+            "cwd": "D:\\Dev\\repos\\fastsearch-mcp"
+        }
+    }
+}

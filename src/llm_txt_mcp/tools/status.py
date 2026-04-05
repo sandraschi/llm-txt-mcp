@@ -7,9 +7,10 @@ from typing import Any, Dict
 
 import psutil
 
+from ..utils.logging import get_logger, log_with_context
 from .tools import get_service
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 # Tool functions without decorators - will be registered in server.py
@@ -30,7 +31,15 @@ async def status_tool(
         dict: Server status with health, configuration, and metrics
     """
     try:
-        logger.info("Getting server status")
+        log_with_context(
+            logger,
+            logging.INFO,
+            "Getting server status",
+            context={
+                "include_system_info": include_system_info,
+                "include_performance_metrics": include_performance_metrics,
+            },
+        )
 
         status = {
             "server_name": "LLM.txt MCP Server",
@@ -82,7 +91,12 @@ async def status_tool(
                     },
                 }
             except Exception as e:
-                logger.warning(f"Could not get system info: {e}")
+                log_with_context(
+                    logger,
+                    logging.WARNING,
+                    "Could not get system info",
+                    context={"error": str(e)},
+                )
                 status["warnings"].append("System information unavailable")
 
         # Add performance metrics if requested
@@ -97,7 +111,12 @@ async def status_tool(
                     },
                 }
             except Exception as e:
-                logger.warning(f"Could not get performance metrics: {e}")
+                log_with_context(
+                    logger,
+                    logging.WARNING,
+                    "Could not get performance metrics",
+                    context={"error": str(e)},
+                )
                 status["warnings"].append("Performance metrics unavailable")
 
         # Check service health
@@ -112,7 +131,12 @@ async def status_tool(
                 status["service_status"] = "degraded"
                 status["warnings"].append("Service templates not loaded")
         except Exception as e:
-            logger.error(f"Service health check failed: {e}")
+            log_with_context(
+                logger,
+                logging.ERROR,
+                "Service health check failed",
+                context={"error": str(e)},
+            )
             status["service_status"] = "unhealthy"
             status["errors"].append(f"Service error: {str(e)}")
             status["status"] = "unhealthy"
@@ -123,18 +147,23 @@ async def status_tool(
         elif status["warnings"]:
             status["status"] = "degraded"
 
-        logger.info(f"Status check completed: {status['status']}")
+        log_with_context(
+            logger,
+            logging.INFO,
+            "Status check completed",
+            context={"status": status["status"]},
+        )
         return status
 
-    except Exception as e:
-        logger.error(f"Error getting status: {e}")
+    except Exception:
+        logger.exception("Error getting status")
         raise
 
 
 async def health_check_tool() -> Dict[str, Any]:
     """Perform a quick health check of the server."""
     try:
-        logger.info("Performing health check")
+        log_with_context(logger, logging.INFO, "Performing health check")
 
         health = {
             "status": "healthy",
@@ -162,11 +191,16 @@ async def health_check_tool() -> Dict[str, Any]:
         if not health["checks"]["service_available"]:
             health["status"] = "unhealthy"
 
-        logger.info(f"Health check completed: {health['status']}")
+        log_with_context(
+            logger,
+            logging.INFO,
+            "Health check completed",
+            context={"status": health["status"]},
+        )
         return health
 
-    except Exception as e:
-        logger.error(f"Error during health check: {e}")
+    except Exception:
+        logger.exception("Error during health check")
         raise
 
 
