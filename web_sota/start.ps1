@@ -18,6 +18,8 @@ $FleetStart = Initialize-FleetStartMode @PSBoundParameters
 Enter-FleetHeadlessConsole -Headless:$Headless -BackendOnly:$BackendOnly
 Stop-FleetPortSquatters -Ports @($WebPort, $BackendPort) -Label "llm-txt-mcp"
 
+if (-not (Assert-FleetPortsAvailable -Ports @($WebPort, $BackendPort) -Label "llm-txt-mcp")) { exit 1 }
+
 Set-Location $PSScriptRoot
 if (-not (Test-Path "node_modules")) { npm install }
 
@@ -50,4 +52,5 @@ if (-not $NoBrowser) {
 
 Write-Host "Starting Vite frontend on port $WebPort ..." -ForegroundColor Green
 npm run dev -- --port $WebPort --host 127.0.0.1 --strictPort
+
 
