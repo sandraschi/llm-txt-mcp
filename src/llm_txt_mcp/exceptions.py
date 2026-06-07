@@ -1,6 +1,6 @@
 """Custom exception classes for LLM.txt MCP server."""
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class LLMTextMCPError(Exception):
@@ -9,8 +9,8 @@ class LLMTextMCPError(Exception):
     def __init__(
         self,
         message: str,
-        error_code: Optional[str] = None,
-        details: Optional[Dict[str, Any]] = None,
+        error_code: str | None = None,
+        details: dict[str, Any] | None = None,
     ):
         """
         Initialize exception.
@@ -25,7 +25,7 @@ class LLMTextMCPError(Exception):
         self.error_code = error_code
         self.details = details or {}
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert exception to dictionary for structured logging."""
         return {
             "error_type": self.__class__.__name__,
@@ -41,9 +41,9 @@ class ValidationError(LLMTextMCPError):
     def __init__(
         self,
         message: str,
-        field: Optional[str] = None,
-        value: Optional[Any] = None,
-        details: Optional[Dict[str, Any]] = None,
+        field: str | None = None,
+        value: Any | None = None,
+        details: dict[str, Any] | None = None,
     ):
         """
         Initialize validation error.
@@ -69,9 +69,9 @@ class FileOperationError(LLMTextMCPError):
     def __init__(
         self,
         message: str,
-        file_path: Optional[str] = None,
-        operation: Optional[str] = None,
-        details: Optional[Dict[str, Any]] = None,
+        file_path: str | None = None,
+        operation: str | None = None,
+        details: dict[str, Any] | None = None,
     ):
         """
         Initialize file operation error.
@@ -97,8 +97,8 @@ class ProjectAnalysisError(LLMTextMCPError):
     def __init__(
         self,
         message: str,
-        project_path: Optional[str] = None,
-        details: Optional[Dict[str, Any]] = None,
+        project_path: str | None = None,
+        details: dict[str, Any] | None = None,
     ):
         """
         Initialize project analysis error.
@@ -121,8 +121,8 @@ class GenerationError(LLMTextMCPError):
     def __init__(
         self,
         message: str,
-        generation_type: Optional[str] = None,
-        details: Optional[Dict[str, Any]] = None,
+        generation_type: str | None = None,
+        details: dict[str, Any] | None = None,
     ):
         """
         Initialize generation error.
@@ -145,8 +145,8 @@ class ServiceError(LLMTextMCPError):
     def __init__(
         self,
         message: str,
-        service_name: Optional[str] = None,
-        details: Optional[Dict[str, Any]] = None,
+        service_name: str | None = None,
+        details: dict[str, Any] | None = None,
     ):
         """
         Initialize service error.
@@ -161,4 +161,3 @@ class ServiceError(LLMTextMCPError):
             error_details["service_name"] = service_name
 
         super().__init__(message, error_code="SERVICE_ERROR", details=error_details)
-

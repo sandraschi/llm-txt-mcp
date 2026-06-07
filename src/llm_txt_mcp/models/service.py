@@ -2,12 +2,17 @@
 
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import aiofiles
 from git import InvalidGitRepositoryError, Repo
 
 from ..utils.generator import LLMTextGenerator
+from ..utils.manifest_quality import (
+    should_include_api_source,
+    should_include_config_link,
+    should_include_doc_file,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -15,15 +20,16 @@ logger = logging.getLogger(__name__)
 class DocumentationProject:
     """Represents a project with its documentation structure."""
 
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, scan_depth: int = 6):
         self.path = path
         self.name = path.name
-        self.project_type: Optional[str] = None
-        self.documentation_files: List[Path] = []
-        self.source_files: List[Path] = []
-        self.config_files: List[Path] = []
+        self.scan_depth = max(1, min(scan_depth, 10))
+        self.project_type: str | None = None
+        self.documentation_files: list[Path] = []
+        self.source_files: list[Path] = []
+        self.config_files: list[Path] = []
         self.is_git_repo = False
-        self.git_repo: Optional[Repo] = None
+        self.git_repo: Repo | None = None
 
         self._analyze_project()
 
@@ -64,46 +70,41 @@ class DocumentationProject:
         return "generic"
 
     def _scan_files(self) -> None:
-        """Scan for documentation and source files."""
-        doc_patterns = [
-            "README*",
-            "readme*",
-            "CHANGELOG*",
-            "changelog*",
-            "CONTRIBUTING*",
-            "contributing*",
-            "LICENSE*",
-            "license*",
-            "*.md",
-            "*.rst",
-            "*.txt",
-            "docs/**/*",
-            "documentation/**/*",
-        ]
+        """Scan for documentation and source files (quality-filtered)."""
+        doc_candidates: list[Path] = []
 
-        source_patterns = {
-            "python": ["*.py", "src/**/*.py"],
-            "typescript": ["*.ts", "*.tsx", "src/**/*.ts", "src/**/*.tsx"],
-            "javascript": ["*.js", "*.jsx", "src/**/*.js", "src/**/*.jsx"],
-            "rust": ["*.rs", "src/**/*.rs"],
-            "go": ["*.go", "**/*.go"],
-            "cpp": ["*.cpp", "*.hpp", "*.h", "*.cc"],
-            "java": ["*.java", "src/**/*.java"],
-            "csharp": ["*.cs", "**/*.cs"],
-        }
+        for pattern in ("*.md", "*.rst"):
+            doc_candidates.extend(self.path.glob(pattern))
 
-        # Find documentation files
-        for pattern in doc_patterns:
-            self.documentation_files.extend(self.path.glob(pattern))
+        for folder in ("docs", "documentation"):
+            docs_root = self.path / folder
+            if docs_root.is_dir():
+                for pattern in ("**/*.md", "**/*.rst"):
+                    doc_candidates.extend(docs_root.glob(pattern))
 
-        # Find source files based on project type
-        if self.project_type in source_patterns:
-            for pattern in source_patterns[self.project_type]:
-                self.source_files.extend(self.path.glob(pattern))
+        seen: set[Path] = set()
+        for file in doc_candidates:
+            resolved = file.resolve()
+            if resolved in seen:
+                continue
+            if should_include_doc_file(file, self.path, self.scan_depth):
+                seen.add(resolved)
+                self.documentation_files.append(file)
 
-        # Remove duplicates and ensure they exist
-        self.documentation_files = [f for f in set(self.documentation_files) if f.is_file()]
-        self.source_files = [f for f in set(self.source_files) if f.is_file()]
+        self.documentation_files.sort(key=lambda p: p.as_posix().lower())
+
+        if self.project_type == "python" or (self.path / "src").is_dir():
+            for py_file in (self.path / "src").rglob("*.py") if (self.path / "src").is_dir() else []:
+                if should_include_api_source(py_file, self.path, self.scan_depth + 2):
+                    self.source_files.append(py_file)
+
+        for config_name in ("pyproject.toml", "package.json", "justfile", "glama.json"):
+            for cfg in self.path.glob(config_name):
+                if should_include_config_link(cfg, self.path):
+                    self.config_files.append(cfg)
+
+        self.source_files = list({f.resolve(): f for f in self.source_files}.values())
+        self.config_files = list({f.resolve(): f for f in self.config_files}.values())
 
 
 class LLMTextService:
@@ -113,7 +114,7 @@ class LLMTextService:
         self.generator = LLMTextGenerator()
         self.templates = self._load_templates()
 
-    def _load_templates(self) -> Dict[str, Dict[str, Any]]:
+    def _load_templates(self) -> dict[str, dict[str, Any]]:
         """Load predefined templates for different project types."""
         return {
             "generic": {
@@ -141,16 +142,17 @@ class LLMTextService:
     async def generate_project_llms_txt(
         self,
         project_path: str,
-        output_path: Optional[str] = None,
+        output_path: str | None = None,
         include_optional: bool = True,
         scan_depth: int = 3,
-    ) -> Dict[str, Any]:
+        quality_mode: bool = True,
+    ) -> dict[str, Any]:
         """Generate llms.txt and llms-full.txt for a project."""
-        project = DocumentationProject(Path(project_path))
+        project = DocumentationProject(Path(project_path), scan_depth=scan_depth)
 
         # Generate the main llms.txt content
         llms_content = await self.generator.generate_from_project(
-            project, include_optional, scan_depth
+            project, include_optional, scan_depth, quality_mode=quality_mode
         )
 
         # Determine output paths
@@ -163,7 +165,7 @@ class LLMTextService:
             await f.write(llms_content["llms_txt"])
 
         # Generate and write llms-full.txt
-        full_content = await self.generator.generate_full_context(project, llms_content)
+        full_content = await self.generator.generate_full_context(project, llms_content, quality_mode=quality_mode)
         async with aiofiles.open(llms_full_txt_path, "w", encoding="utf-8") as f:
             await f.write(full_content)
 
@@ -174,7 +176,7 @@ class LLMTextService:
             "sections_created": len(llms_content["sections"]),
         }
 
-    async def validate_llms_txt(self, file_path: str) -> Dict[str, Any]:
+    async def validate_llms_txt(self, file_path: str) -> dict[str, Any]:
         """Validate an llms.txt file."""
         path = Path(file_path)
         if not path.exists():
@@ -185,7 +187,7 @@ class LLMTextService:
                 "suggestions": [],
             }
 
-        async with aiofiles.open(path, "r", encoding="utf-8") as f:
+        async with aiofiles.open(path, encoding="utf-8") as f:
             content = await f.read()
 
         return self.generator.validate_llms_txt_format(content)
@@ -193,9 +195,9 @@ class LLMTextService:
     async def update_llms_txt(
         self,
         project_path: str,
-        regenerate_sections: Optional[List[str]] = None,
+        regenerate_sections: list[str] | None = None,
         preserve_custom_content: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Update an existing llms.txt file."""
         project = DocumentationProject(Path(project_path))
         llms_txt_path = project.path / "llms.txt"
@@ -204,7 +206,7 @@ class LLMTextService:
             raise FileNotFoundError(f"No llms.txt found in {project_path}")
 
         # Read existing content
-        async with aiofiles.open(llms_txt_path, "r", encoding="utf-8") as f:
+        async with aiofiles.open(llms_txt_path, encoding="utf-8") as f:
             existing_content = await f.read()
 
         # Parse and update
@@ -224,11 +226,11 @@ class LLMTextService:
 
     async def convert_to_context(
         self, llms_txt_path: str, output_format: str = "xml", include_optional: bool = False
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Convert llms.txt to LLM context format."""
         path = Path(llms_txt_path)
 
-        async with aiofiles.open(path, "r", encoding="utf-8") as f:
+        async with aiofiles.open(path, encoding="utf-8") as f:
             content = await f.read()
 
         # Parse the llms.txt content
@@ -257,7 +259,7 @@ class LLMTextService:
 
     async def scan_project_structure(
         self, project_path: str, scan_depth: int = 3, include_hidden: bool = False
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Scan and analyze project structure."""
         project = DocumentationProject(Path(project_path))
 
@@ -266,9 +268,7 @@ class LLMTextService:
 
         return {
             "project_type": project.project_type,
-            "documentation_files": [
-                str(f.relative_to(project.path)) for f in project.documentation_files
-            ],
+            "documentation_files": [str(f.relative_to(project.path)) for f in project.documentation_files],
             "source_files": [str(f.relative_to(project.path)) for f in project.source_files[:10]],
             "suggested_sections": suggestions["sections"],
             "recommendations": suggestions["recommendations"],
@@ -278,8 +278,8 @@ class LLMTextService:
         self,
         project_path: str,
         template_name: str = "generic",
-        custom_sections: Optional[Dict[str, List[str]]] = None,
-    ) -> Dict[str, Any]:
+        custom_sections: dict[str, list[str]] | None = None,
+    ) -> dict[str, Any]:
         """Generate llms.txt from a template."""
         if template_name not in self.templates:
             raise ValueError(f"Unknown template: {template_name}")
@@ -301,7 +301,7 @@ class LLMTextService:
             "sections_created": len(template["sections"]),
         }
 
-    def _generate_suggestions(self, project: DocumentationProject) -> Dict[str, Any]:
+    def _generate_suggestions(self, project: DocumentationProject) -> dict[str, Any]:
         """Generate suggestions for improving documentation."""
         suggestions = {"sections": [], "recommendations": []}
 
@@ -319,9 +319,7 @@ class LLMTextService:
         elif project.project_type in ["typescript", "javascript", "react"]:
             suggestions["sections"].extend(["components", "api"])
             if not any("package.json" in f.name for f in project.documentation_files):
-                suggestions["recommendations"].append(
-                    "Consider documenting package.json dependencies"
-                )
+                suggestions["recommendations"].append("Consider documenting package.json dependencies")
 
         # General recommendations
         if not any("readme" in f.name.lower() for f in project.documentation_files):

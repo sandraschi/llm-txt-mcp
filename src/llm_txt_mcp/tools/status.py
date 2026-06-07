@@ -3,7 +3,7 @@
 import logging
 import platform
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
 import psutil
 
@@ -14,9 +14,7 @@ logger = get_logger(__name__)
 
 
 # Tool functions without decorators - will be registered in server.py
-async def status_tool(
-    include_system_info: bool = False, include_performance_metrics: bool = False
-) -> Dict[str, Any]:
+async def status_tool(include_system_info: bool = False, include_performance_metrics: bool = False) -> dict[str, Any]:
     """
     Get comprehensive server status and health information.
 
@@ -138,7 +136,7 @@ async def status_tool(
                 context={"error": str(e)},
             )
             status["service_status"] = "unhealthy"
-            status["errors"].append(f"Service error: {str(e)}")
+            status["errors"].append(f"Service error: {e!s}")
             status["status"] = "unhealthy"
 
         # Overall status determination
@@ -160,7 +158,7 @@ async def status_tool(
         raise
 
 
-async def health_check_tool() -> Dict[str, Any]:
+async def health_check_tool() -> dict[str, Any]:
     """Perform a quick health check of the server."""
     try:
         log_with_context(logger, logging.INFO, "Performing health check")
@@ -185,7 +183,7 @@ async def health_check_tool() -> Dict[str, Any]:
                 health["issues"].append("Service templates not available")
         except Exception as e:
             health["checks"]["service_available"] = False
-            health["issues"].append(f"Service error: {str(e)}")
+            health["issues"].append(f"Service error: {e!s}")
 
         # Determine overall health
         if not health["checks"]["service_available"]:
@@ -204,4 +202,4 @@ async def health_check_tool() -> Dict[str, Any]:
         raise
 
 
-__all__ = ["status_tool", "health_check_tool"]
+__all__ = ["health_check_tool", "status_tool"]

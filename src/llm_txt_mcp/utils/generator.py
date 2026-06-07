@@ -4,9 +4,17 @@ import json
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any
 
 import aiofiles
+
+from .manifest_quality import (
+    MAX_INDEX_DOCS,
+    excerpt_markdown,
+    should_embed_file,
+    should_include_config_link,
+    validate_manifest_links,
+)
 
 if TYPE_CHECKING:
     from ..models.service import DocumentationProject
@@ -31,7 +39,8 @@ class LLMTextGenerator:
         project: "DocumentationProject",
         include_optional: bool = True,
         scan_depth: int = 3,
-    ) -> Dict[str, Any]:
+        quality_mode: bool = True,
+    ) -> dict[str, Any]:
         """Generate llms.txt content from a project."""
         sections = {}
 
@@ -65,7 +74,7 @@ class LLMTextGenerator:
                 sections["optional"] = optional_section
 
         # Build final llms.txt content
-        llms_txt_content = self._build_llms_txt(header, sections)
+        llms_txt_content = self._build_llms_txt(header, sections, quality_mode=quality_mode)
 
         return {"llms_txt": llms_txt_content, "sections": sections, "header": header}
 
@@ -80,7 +89,7 @@ class LLMTextGenerator:
 
         return f"# {project.name}\n> {description}\n"
 
-    def _extract_project_description(self, project: "DocumentationProject") -> Optional[str]:
+    def _extract_project_description(self, project: "DocumentationProject") -> str | None:
         """Extract project description from README or other files."""
         readme_files = [f for f in project.documentation_files if "readme" in f.name.lower()]
 
@@ -88,7 +97,7 @@ class LLMTextGenerator:
             return None
 
         try:
-            with open(readme_files[0], "r", encoding="utf-8") as f:
+            with open(readme_files[0], encoding="utf-8") as f:
                 content = f.read()
 
             # Look for first paragraph after title
@@ -110,9 +119,7 @@ class LLMTextGenerator:
         except Exception:
             return None
 
-    async def _process_documentation_files(
-        self, project: "DocumentationProject"
-    ) -> List[Dict[str, str]]:
+    async def _process_documentation_files(self, project: "DocumentationProject") -> list[dict[str, str]]:
         """Process documentation files into links."""
         docs = []
 
@@ -154,9 +161,9 @@ class LLMTextGenerator:
                     }
                 )
 
-        return docs[:10]  # Limit to avoid clutter
+        return docs[:MAX_INDEX_DOCS]
 
-    async def _process_api_files(self, project: "DocumentationProject") -> List[Dict[str, str]]:
+    async def _process_api_files(self, project: "DocumentationProject") -> list[dict[str, str]]:
         """Process source files to generate API documentation links."""
         api_docs = []
 
@@ -165,9 +172,7 @@ class LLMTextGenerator:
 
         for pattern in api_patterns:
             matching_files = [
-                f
-                for f in project.source_files
-                if pattern in f.name.lower() or pattern in str(f.parent).lower()
+                f for f in project.source_files if pattern in f.name.lower() or pattern in str(f.parent).lower()
             ]
 
             for file in matching_files[:3]:  # Limit per pattern
@@ -181,7 +186,7 @@ class LLMTextGenerator:
 
         return api_docs
 
-    async def _process_examples(self, project: "DocumentationProject") -> List[Dict[str, str]]:
+    async def _process_examples(self, project: "DocumentationProject") -> list[dict[str, str]]:
         """Process example files and directories."""
         examples = []
 
@@ -190,9 +195,7 @@ class LLMTextGenerator:
 
         for pattern in example_patterns:
             # Check for directories
-            example_dirs = [
-                d for d in project.path.iterdir() if d.is_dir() and pattern in d.name.lower()
-            ]
+            example_dirs = [d for d in project.path.iterdir() if d.is_dir() and pattern in d.name.lower()]
 
             for dir_path in example_dirs:
                 examples.append(
@@ -204,11 +207,7 @@ class LLMTextGenerator:
                 )
 
             # Check for files
-            example_files = [
-                f
-                for f in project.documentation_files + project.source_files
-                if pattern in f.name.lower()
-            ]
+            example_files = [f for f in project.documentation_files + project.source_files if pattern in f.name.lower()]
 
             for file in example_files[:2]:  # Limit per pattern
                 examples.append(
@@ -221,37 +220,31 @@ class LLMTextGenerator:
 
         return examples[:5]  # Limit total examples
 
-    async def _process_configuration(self, project: "DocumentationProject") -> List[Dict[str, str]]:
+    async def _process_configuration(self, project: "DocumentationProject") -> list[dict[str, str]]:
         """Process configuration files."""
         config_docs = []
 
-        # Configuration file patterns
-        config_patterns = {
+        descriptions = {
             "pyproject.toml": "Python project configuration and dependencies",
             "package.json": "Node.js project configuration and dependencies",
-            "Cargo.toml": "Rust project configuration and dependencies",
-            "go.mod": "Go module configuration and dependencies",
-            ".env": "Environment variables and configuration",
-            "config": "Application configuration files",
-            "settings": "Application settings and configuration",
+            "justfile": "Task runner recipes",
+            "glama.json": "Glama MCP registry metadata",
         }
 
-        for pattern, description in config_patterns.items():
-            matching_files = [f for f in project.path.rglob(pattern) if f.is_file()]
-            for file in matching_files[:1]:  # One per pattern
-                config_docs.append(
-                    {
-                        "title": self._format_title(file.name),
-                        "url": str(file.relative_to(project.path)),
-                        "description": description,
-                    }
-                )
+        for file in project.config_files:
+            if not should_include_config_link(file, project.path):
+                continue
+            config_docs.append(
+                {
+                    "title": self._format_title(file.name),
+                    "url": str(file.relative_to(project.path)),
+                    "description": descriptions.get(file.name.lower(), "Project configuration"),
+                }
+            )
 
         return config_docs
 
-    async def _process_optional_content(
-        self, project: "DocumentationProject"
-    ) -> List[Dict[str, str]]:
+    async def _process_optional_content(self, project: "DocumentationProject") -> list[dict[str, str]]:
         """Process optional/secondary content."""
         optional = []
 
@@ -280,7 +273,7 @@ class LLMTextGenerator:
     async def _extract_file_description(self, file_path: Path) -> str:
         """Extract description from a file's content."""
         try:
-            async with aiofiles.open(file_path, "r", encoding="utf-8") as f:
+            async with aiofiles.open(file_path, encoding="utf-8") as f:
                 content = await f.read()
 
             # For markdown files, look for first paragraph
@@ -317,62 +310,124 @@ class LLMTextGenerator:
 
         return title
 
-    def _build_llms_txt(self, header: str, sections: Dict[str, List[Dict[str, str]]]) -> str:
+    def _build_llms_txt(
+        self,
+        header: str,
+        sections: dict[str, list[dict[str, str]]],
+        quality_mode: bool = True,
+    ) -> str:
         """Build the final llms.txt content."""
-        content = [header]
+        content = [header.rstrip(), ""]
 
-        # Add project context
-        content.append(
-            "This project includes automated llms.txt generation for AI accessibility.\n"
-        )
+        if quality_mode:
+            content.append("**Full detail: see [llms-full.txt](llms-full.txt)**")
+            content.append("")
+            content.append("Curated index for LLM crawlers — no local dumps or secrets.")
+            content.append("")
 
-        # Add sections in order
+        section_titles = {
+            "docs": "Quick links" if quality_mode else "Docs",
+            "api": "Api",
+            "configuration": "Configuration",
+            "optional": "Optional",
+        }
+
         for section_name in self.section_order:
-            if section_name in sections and sections[section_name]:
-                content.append(f"## {section_name.title()}")
+            if sections.get(section_name):
+                title = section_titles.get(section_name, section_name.title())
+                content.append(f"## {title}")
 
                 for item in sections[section_name]:
-                    title = item["title"]
-                    url = item["url"]
-                    description = item["description"]
-                    content.append(f"- [{title}]({url}): {description}")
+                    content.append(f"- [{item['title']}]({item['url']}): {item['description']}")
 
-                content.append("")  # Empty line between sections
+                content.append("")
 
-        return "\n".join(content)
+        return "\n".join(content).rstrip() + "\n"
 
     async def generate_full_context(
-        self, project: "DocumentationProject", llms_content: Dict[str, Any]
+        self,
+        project: "DocumentationProject",
+        llms_content: dict[str, Any],
+        quality_mode: bool = True,
     ) -> str:
-        """Generate llms-full.txt with complete content."""
-        full_content = [llms_content["header"]]
-        full_content.append(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        """Generate llms-full.txt — excerpts in quality mode, not raw repo dumps."""
+        full_content = [llms_content["header"].rstrip()]
+        full_content.append("")
+        full_content.append("> Curated corpus for LLM ingestion. Excerpts only; paths and secrets sanitized.")
+        full_content.append(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        full_content.append("Index: [llms.txt](llms.txt)")
+        full_content.append("")
 
-        # Include all file contents
         for section_name, items in llms_content["sections"].items():
-            full_content.append(f"## {section_name.title()} - Full Content\n")
+            if not items:
+                continue
+            full_content.append(f"## {section_name.title()}")
+            full_content.append("")
 
             for item in items:
                 file_path = project.path / item["url"]
-                if file_path.is_file() and file_path.stat().st_size < 100000:  # Max 100KB per file
-                    try:
-                        async with aiofiles.open(file_path, "r", encoding="utf-8") as f:
-                            content = await f.read()
+                if file_path.is_dir():
+                    full_content.append(f"### {item['title']}")
+                    full_content.append(f"Path: {item['url']}/ (directory — see repo)")
+                    full_content.append("")
+                    continue
 
-                        full_content.append(f"### {item['title']}")
-                        full_content.append(f"Source: {item['url']}")
-                        full_content.append("```")
-                        full_content.append(content)
-                        full_content.append("```\n")
+                if not file_path.is_file():
+                    continue
 
-                    except Exception:
-                        full_content.append(f"### {item['title']}")
-                        full_content.append(f"Source: {item['url']}")
-                        full_content.append("*Content could not be read*\n")
+                if quality_mode and not should_embed_file(file_path, project.path):
+                    full_content.append(f"### {item['title']}")
+                    full_content.append(f"Source: {item['url']} (index link only — not embedded)")
+                    full_content.append("")
+                    continue
 
-        return "\n".join(full_content)
+                try:
+                    async with aiofiles.open(file_path, encoding="utf-8", errors="replace") as f:
+                        raw = await f.read()
 
-    def validate_llms_txt_format(self, content: str) -> Dict[str, Any]:
+                    if quality_mode and file_path.suffix.lower() in {".md", ".rst"}:
+                        body = excerpt_markdown(raw)
+                        fence = "markdown"
+                    elif quality_mode:
+                        body = excerpt_markdown(raw, max_lines=40, max_chars=3000)
+                        fence = file_path.suffix.lstrip(".") or "text"
+                    else:
+                        body = raw
+                        fence = file_path.suffix.lstrip(".") or "text"
+
+                    full_content.append(f"### {item['title']}")
+                    full_content.append(f"Source: {item['url']}")
+                    full_content.append(f"```{fence}")
+                    full_content.append(body)
+                    full_content.append("```")
+                    full_content.append("")
+
+                except Exception:
+                    full_content.append(f"### {item['title']}")
+                    full_content.append(f"Source: {item['url']}")
+                    full_content.append("*Content could not be read*")
+                    full_content.append("")
+
+        if quality_mode:
+            full_content.append("## Privacy")
+            full_content.append("")
+            full_content.append(
+                "Do not treat this file as a substitute for cloning when you need full source. "
+                "Regenerate after doc changes; review before publishing."
+            )
+            full_content.append("")
+
+        return "\n".join(full_content).rstrip() + "\n"
+
+    def validate_manifest_quality(self, content: str) -> dict[str, Any]:
+        """Fleet-quality checks beyond basic markdown structure."""
+        extra = validate_manifest_links(content)
+        return {
+            "errors": extra["errors"],
+            "warnings": extra["warnings"],
+        }
+
+    def validate_llms_txt_format(self, content: str) -> dict[str, Any]:
         """Validate llms.txt format."""
         errors = []
         warnings = []
@@ -398,9 +453,16 @@ class LLMTextGenerator:
         if not links:
             warnings.append("No markdown links found in sections")
 
+        if "llms-full.txt" not in content:
+            warnings.append("Missing link to llms-full.txt")
+
+        quality = validate_manifest_links(content)
+        warnings.extend(quality["warnings"])
+        errors.extend(quality["errors"])
+
         # Suggestions
-        if len(sections) < 3:
-            suggestions.append("Consider adding more sections (docs, examples, optional)")
+        if len(sections) < 2:
+            suggestions.append("Consider adding Quick links / docs sections")
 
         return {
             "is_valid": len(errors) == 0,
@@ -409,14 +471,14 @@ class LLMTextGenerator:
             "suggestions": suggestions,
         }
 
-    def parse_llms_txt(self, content: str) -> Dict[str, Any]:
+    def parse_llms_txt(self, content: str) -> dict[str, Any]:
         """Parse llms.txt content into structured data."""
         lines = content.split("\n")
 
         parsed = {"title": "", "summary": "", "info": "", "sections": {}}
 
         current_section = None
-        current_content: List[str] = []
+        current_content: list[str] = []
 
         for line in lines:
             line = line.strip()
@@ -444,7 +506,7 @@ class LLMTextGenerator:
 
         return parsed
 
-    def generate_xml_context(self, parsed: Dict[str, Any], include_optional: bool = False) -> str:
+    def generate_xml_context(self, parsed: dict[str, Any], include_optional: bool = False) -> str:
         """Generate XML context from parsed llms.txt."""
         xml_lines = ['<?xml version="1.0" encoding="UTF-8"?>']
         xml_lines.append("<llms_context>")
@@ -470,7 +532,7 @@ class LLMTextGenerator:
 
         return "\n".join(xml_lines)
 
-    def generate_json_context(self, parsed: Dict[str, Any], include_optional: bool = False) -> str:
+    def generate_json_context(self, parsed: dict[str, Any], include_optional: bool = False) -> str:
         """Generate JSON context from parsed llms.txt."""
         context = {
             "title": parsed["title"],
@@ -489,8 +551,8 @@ class LLMTextGenerator:
     async def generate_from_template(
         self,
         project: "DocumentationProject",
-        template: Dict[str, Any],
-        custom_sections: Optional[Dict[str, List[str]]] = None,
+        template: dict[str, Any],
+        custom_sections: dict[str, list[str]] | None = None,
     ) -> str:
         """Generate llms.txt from a template."""
         header = self._generate_header(project)
@@ -509,13 +571,9 @@ class LLMTextGenerator:
                 content.append("- [API Documentation](docs/api.md): Complete API reference")
             elif section_name == "examples":
                 content.append("- [Basic Usage](examples/basic.md): Simple usage examples")
-                content.append(
-                    "- [Advanced Examples](examples/advanced.md): Complex implementation patterns"
-                )
+                content.append("- [Advanced Examples](examples/advanced.md): Complex implementation patterns")
             elif section_name == "configuration":
-                content.append(
-                    "- [Environment Setup](config/env.md): Environment configuration guide"
-                )
+                content.append("- [Environment Setup](config/env.md): Environment configuration guide")
                 content.append("- [Settings](config/settings.md): Application settings and options")
             elif section_name == "optional":
                 content.append("- [Changelog](CHANGELOG.md): Version history and updates")
@@ -534,9 +592,9 @@ class LLMTextGenerator:
         self,
         existing_content: str,
         project: "DocumentationProject",
-        regenerate_sections: Optional[List[str]] = None,
+        regenerate_sections: list[str] | None = None,
         preserve_custom_content: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Update existing llms.txt content."""
         # Parse existing content
         parsed = self.parse_llms_txt(existing_content)
@@ -571,9 +629,7 @@ class LLMTextGenerator:
                 changes_made.append(f"Updated {section} section")
 
         # Rebuild content
-        rebuilt_content = self._build_llms_txt(
-            f"# {parsed['title']}\n> {parsed['summary']}\n", parsed["sections"]
-        )
+        rebuilt_content = self._build_llms_txt(f"# {parsed['title']}\n> {parsed['summary']}\n", parsed["sections"])
 
         return {
             "content": rebuilt_content,

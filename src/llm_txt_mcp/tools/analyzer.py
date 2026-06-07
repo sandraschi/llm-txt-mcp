@@ -1,7 +1,7 @@
 import json
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import TYPE_CHECKING, Any
 
 from ..exceptions import ProjectAnalysisError
 from ..utils.logging import get_logger, log_with_context
@@ -16,7 +16,7 @@ logger = get_logger(__name__)
 # Tool function without decorator - will be registered in server.py
 async def analyze_repo_tool(
     repo_path: str, include_analysis: bool = False, output_format: str = "text"
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Analyze repository for AI accessibility and provide comprehensive recommendations.
 
@@ -96,7 +96,7 @@ async def analyze_repo_tool(
     except Exception as e:
         logger.exception(f"Unexpected error analyzing repository {repo_path}")
         raise ProjectAnalysisError(
-            f"Failed to analyze repository: {str(e)}",
+            f"Failed to analyze repository: {e!s}",
             project_path=repo_path,
         ) from e
 
@@ -105,7 +105,7 @@ async def _perform_comprehensive_analysis(
     project: "DocumentationProject",
     service: "LLMTextService",
     include_detailed_analysis: bool,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Perform comprehensive repository analysis."""
     analysis = {
         "project_info": {
@@ -153,7 +153,7 @@ async def _perform_comprehensive_analysis(
     return analysis
 
 
-async def _analyze_documentation_quality(project: "DocumentationProject") -> List[Dict[str, Any]]:
+async def _analyze_documentation_quality(project: "DocumentationProject") -> list[dict[str, Any]]:
     """Analyze documentation quality factors."""
     factors = []
 
@@ -172,7 +172,7 @@ async def _analyze_documentation_quality(project: "DocumentationProject") -> Lis
     readme_files = [f for f in project.documentation_files if "readme" in f.name.lower()]
     if readme_files:
         try:
-            with open(readme_files[0], "r", encoding="utf-8") as f:
+            with open(readme_files[0], encoding="utf-8") as f:
                 readme_content = f.read()
                 has_description = len(readme_content) > 100
                 has_installation = "install" in readme_content.lower()
@@ -187,9 +187,7 @@ async def _analyze_documentation_quality(project: "DocumentationProject") -> Lis
                         "name": "README Quality",
                         "score": readme_score,
                         "description": "Quality and completeness of README file",
-                        "details": (
-                            "README contains description, installation, and usage information"
-                        ),
+                        "details": ("README contains description, installation, and usage information"),
                     }
                 )
         except Exception:
@@ -218,16 +216,14 @@ async def _analyze_documentation_quality(project: "DocumentationProject") -> Lis
             "name": "API Documentation",
             "score": 15 if has_api_docs else 5,
             "description": "Presence of API documentation",
-            "details": "API documentation files found"
-            if has_api_docs
-            else "Limited or no API documentation",
+            "details": "API documentation files found" if has_api_docs else "Limited or no API documentation",
         }
     )
 
     return factors
 
 
-def _analyze_project_structure(project: "DocumentationProject") -> List[Dict[str, Any]]:
+def _analyze_project_structure(project: "DocumentationProject") -> list[dict[str, Any]]:
     """Analyze project structure factors."""
     factors = []
 
@@ -235,8 +231,7 @@ def _analyze_project_structure(project: "DocumentationProject") -> List[Dict[str
     has_src_dir = (project.path / "src").exists()
     has_docs_dir = (project.path / "docs").exists()
     has_examples_dir = any(
-        (project.path / "examples").exists()
-        or any("example" in str(f.parent) for f in project.source_files)
+        (project.path / "examples").exists() or any("example" in str(f.parent) for f in project.source_files)
     )
 
     structure_score = 0
@@ -267,16 +262,14 @@ def _analyze_project_structure(project: "DocumentationProject") -> List[Dict[str
             "name": "Configuration Management",
             "score": 10 if has_config else 2,
             "description": "Presence of configuration files",
-            "details": "Project configuration files found"
-            if has_config
-            else "Missing configuration files",
+            "details": "Project configuration files found" if has_config else "Missing configuration files",
         }
     )
 
     return factors
 
 
-def _analyze_content_organization(project: "DocumentationProject") -> List[Dict[str, Any]]:
+def _analyze_content_organization(project: "DocumentationProject") -> list[dict[str, Any]]:
     """Analyze content organization factors."""
     factors = []
 
@@ -328,9 +321,7 @@ def _analyze_content_organization(project: "DocumentationProject") -> List[Dict[
     return factors
 
 
-async def _generate_recommendations(
-    project: "DocumentationProject", analysis: Dict[str, Any]
-) -> List[str]:
+async def _generate_recommendations(project: "DocumentationProject", analysis: dict[str, Any]) -> list[str]:
     """Generate recommendations based on analysis."""
     recommendations = []
 
@@ -342,9 +333,7 @@ async def _generate_recommendations(
         recommendations.append("Create a comprehensive README.md file")
 
     if analysis["documentation_status"]["documentation_files_count"] < 3:
-        recommendations.append(
-            "Add more documentation files (installation guide, API docs, examples)"
-        )
+        recommendations.append("Add more documentation files (installation guide, API docs, examples)")
 
     # Project-type specific recommendations
     if project.project_type == "python":
@@ -371,14 +360,12 @@ async def _generate_recommendations(
         config_files = ["pyproject.toml", "package.json", "Cargo.toml", "go.mod"]
         missing_configs = [f for f in config_files if not (project.path / f).exists()]
         if missing_configs:
-            recommendations.append(
-                f"Consider adding configuration files: {', '.join(missing_configs)}"
-            )
+            recommendations.append(f"Consider adding configuration files: {', '.join(missing_configs)}")
 
     return recommendations[:10]  # Limit recommendations
 
 
-async def _perform_detailed_analysis(project: "DocumentationProject") -> Dict[str, Any]:
+async def _perform_detailed_analysis(project: "DocumentationProject") -> dict[str, Any]:
     """Perform detailed file-by-file analysis."""
     detailed = {
         "documentation_files": [],
@@ -390,7 +377,7 @@ async def _perform_detailed_analysis(project: "DocumentationProject") -> Dict[st
     # Analyze documentation files
     for doc_file in project.documentation_files[:20]:  # Limit for performance
         try:
-            with open(doc_file, "r", encoding="utf-8") as f:
+            with open(doc_file, encoding="utf-8") as f:
                 content = f.read()
 
             file_analysis = {
@@ -414,7 +401,7 @@ async def _perform_detailed_analysis(project: "DocumentationProject") -> Dict[st
     # Analyze source files (sample)
     for src_file in project.source_files[:10]:  # Limit for performance
         try:
-            with open(src_file, "r", encoding="utf-8") as f:
+            with open(src_file, encoding="utf-8") as f:
                 content = f.read()
 
             file_analysis = {
@@ -436,7 +423,7 @@ async def _perform_detailed_analysis(project: "DocumentationProject") -> Dict[st
     return detailed
 
 
-def _calculate_accessibility_score(analysis: Dict[str, Any]) -> int:
+def _calculate_accessibility_score(analysis: dict[str, Any]) -> int:
     """Calculate overall AI accessibility score."""
     total_score = sum(factor["score"] for factor in analysis["ai_accessibility"]["factors"])
 
@@ -455,7 +442,7 @@ def _calculate_accessibility_score(analysis: Dict[str, Any]) -> int:
     return min(100, total_score)
 
 
-def _format_analysis_as_text(analysis: Dict[str, Any]) -> str:
+def _format_analysis_as_text(analysis: dict[str, Any]) -> str:
     """Format analysis as plain text for Claude."""
     text = []
     text.append(f"# Repository Analysis: {analysis['project_info']['name']}")
@@ -491,7 +478,7 @@ def _format_analysis_as_text(analysis: Dict[str, Any]) -> str:
     return "\n".join(text)
 
 
-def _format_analysis_as_markdown(analysis: Dict[str, Any]) -> str:
+def _format_analysis_as_markdown(analysis: dict[str, Any]) -> str:
     """Format analysis as markdown for Claude."""
     # Similar to text but with markdown formatting
     return _format_analysis_as_text(analysis)  # For now, reuse text formatting

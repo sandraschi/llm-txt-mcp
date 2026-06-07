@@ -65,9 +65,7 @@ class TestLLMTextService:
             project_path = Path(temp_dir)
             (project_path / "README.md").write_text("# Test Project\n> Test description")
 
-            with patch.object(
-                service.generator, "generate_from_project", new_callable=AsyncMock
-            ) as mock_generate:
+            with patch.object(service.generator, "generate_from_project", new_callable=AsyncMock) as mock_generate:
                 mock_generate.return_value = {
                     "llms_txt": "# Test\n> Description\n## Docs\n- [README](README.md): Test",
                     "sections": {"docs": []},

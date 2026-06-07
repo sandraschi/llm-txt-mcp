@@ -2,10 +2,10 @@
 
 import logging
 import sys
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-
 from fastmcp import FastMCP
 
 from .exceptions import LLMTextMCPError, ServiceError
@@ -58,7 +58,7 @@ async def api_health():
 
 
 @app.post("/call")
-async def api_call_tool(request: Dict[str, Any]):
+async def api_call_tool(request: dict[str, Any]):
     """Bridge endpoint for webapp to call MCP tools."""
     name = request.get("name")
     arguments = request.get("arguments", {}) or {}
@@ -78,11 +78,7 @@ async def api_call_tool(request: Dict[str, Any]):
     if "repository_path" in arguments and "project_path" not in arguments:
         arguments["project_path"] = arguments.pop("repository_path")
 
-    if (
-        name == "validate_llms_txt"
-        and "path" in arguments
-        and "file_path" not in arguments
-    ):
+    if name == "validate_llms_txt" and "path" in arguments and "file_path" not in arguments:
         arguments["file_path"] = arguments.pop("path")
 
     try:
@@ -92,7 +88,7 @@ async def api_call_tool(request: Dict[str, Any]):
         return result
     except Exception as e:
         logger.exception(f"Error calling tool {name} via bridge")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 # Mount the FastMCP HTTP/SSE application handlers at the root
@@ -104,10 +100,11 @@ app.mount("/", mcp.http_app())
 @mcp.tool()
 async def generate_llms_txt(
     project_path: str,
-    output_path: Optional[str] = None,
+    output_path: str | None = None,
     include_optional: bool = True,
     scan_depth: int = 3,
-) -> Dict[str, Any]:
+    quality_mode: bool = True,
+) -> dict[str, Any]:
     """Generate complete llms.txt documentation files for a project directory.
 
     This tool automatically scans a project directory, analyzes its structure and
@@ -140,6 +137,11 @@ async def generate_llms_txt(
             - Higher values scan deeper but may be slower
             - Recommended: 3 for most projects
             - Use 1-2 for shallow projects, 4-5 for deeply nested structures
+
+        quality_mode: Fleet-quality manifest generation (default: True)
+            - Skips debug dumps, lockfiles, .env, megatest guides, node_modules
+            - llms-full.txt uses sanitized excerpts, not whole-repo paste
+            - Set False only for legacy verbose dumps
 
     Returns:
         Dictionary containing:
@@ -207,9 +209,7 @@ async def generate_llms_txt(
             "Tool called: generate_llms_txt",
             context={"project_path": project_path, "output_path": output_path},
         )
-        result = await generate_llms_txt_tool(
-            project_path, output_path, include_optional, scan_depth
-        )
+        result = await generate_llms_txt_tool(project_path, output_path, include_optional, scan_depth, quality_mode)
         log_with_context(
             logger,
             logging.INFO,
@@ -229,18 +229,18 @@ async def generate_llms_txt(
         log_with_context(
             logger,
             logging.ERROR,
-            f"Unexpected error in generate_llms_txt: {str(e)}",
+            f"Unexpected error in generate_llms_txt: {e!s}",
             context={"project_path": project_path, "error_type": type(e).__name__},
         )
         logger.exception("Unexpected error in generate_llms_txt")
         raise ServiceError(
-            f"Failed to generate llms.txt: {str(e)}",
+            f"Failed to generate llms.txt: {e!s}",
             service_name="generate_llms_txt",
         ) from e
 
 
 @mcp.tool()
-async def validate_llms_txt(file_path: str) -> Dict[str, Any]:
+async def validate_llms_txt(file_path: str) -> dict[str, Any]:
     """Validate an existing llms.txt file for format compliance and completeness.
 
     This tool performs comprehensive validation of an llms.txt file to ensure it
@@ -340,12 +340,12 @@ async def validate_llms_txt(file_path: str) -> Dict[str, Any]:
         log_with_context(
             logger,
             logging.ERROR,
-            f"Unexpected error in validate_llms_txt: {str(e)}",
+            f"Unexpected error in validate_llms_txt: {e!s}",
             context={"file_path": file_path, "error_type": type(e).__name__},
         )
         logger.exception("Unexpected error")
         raise ServiceError(
-            f"Failed to validate llms.txt: {str(e)}",
+            f"Failed to validate llms.txt: {e!s}",
             service_name="validate_llms_txt",
         ) from e
 
@@ -353,9 +353,9 @@ async def validate_llms_txt(file_path: str) -> Dict[str, Any]:
 @mcp.tool()
 async def update_llms_txt(
     project_path: str,
-    regenerate_sections: Optional[List[str]] = None,
+    regenerate_sections: list[str] | None = None,
     preserve_custom_content: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Update an existing llms.txt file while preserving custom content.
 
     This tool intelligently updates an existing llms.txt file by regenerating
@@ -448,9 +448,7 @@ async def update_llms_txt(
                 "regenerate_sections": regenerate_sections,
             },
         )
-        result = await update_llms_txt_tool(
-            project_path, regenerate_sections, preserve_custom_content
-        )
+        result = await update_llms_txt_tool(project_path, regenerate_sections, preserve_custom_content)
         log_with_context(
             logger,
             logging.INFO,
@@ -470,12 +468,12 @@ async def update_llms_txt(
         log_with_context(
             logger,
             logging.ERROR,
-            f"Unexpected error in update_llms_txt: {str(e)}",
+            f"Unexpected error in update_llms_txt: {e!s}",
             context={"project_path": project_path, "error_type": type(e).__name__},
         )
         logger.exception("Unexpected error")
         raise ServiceError(
-            f"Failed to update llms.txt: {str(e)}",
+            f"Failed to update llms.txt: {e!s}",
             service_name="update_llms_txt",
         ) from e
 
@@ -483,7 +481,7 @@ async def update_llms_txt(
 @mcp.tool()
 async def convert_to_context(
     llms_txt_path: str, output_format: str = "xml", include_optional: bool = False
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Convert llms.txt file to XML or JSON format optimized for LLM consumption.
 
     This tool converts a standard llms.txt markdown file into structured XML or JSON
@@ -573,9 +571,7 @@ async def convert_to_context(
             "Tool called: convert_to_context",
             context={"llms_txt_path": llms_txt_path, "output_format": output_format},
         )
-        result = await convert_to_context_tool(
-            llms_txt_path, output_format, include_optional
-        )
+        result = await convert_to_context_tool(llms_txt_path, output_format, include_optional)
         log_with_context(
             logger,
             logging.INFO,
@@ -595,12 +591,12 @@ async def convert_to_context(
         log_with_context(
             logger,
             logging.ERROR,
-            f"Unexpected error in convert_to_context: {str(e)}",
+            f"Unexpected error in convert_to_context: {e!s}",
             context={"llms_txt_path": llms_txt_path, "error_type": type(e).__name__},
         )
         logger.exception("Unexpected error")
         raise ServiceError(
-            f"Failed to convert llms.txt: {str(e)}",
+            f"Failed to convert llms.txt: {e!s}",
             service_name="convert_to_context",
         ) from e
 
@@ -608,7 +604,7 @@ async def convert_to_context(
 @mcp.tool()
 async def scan_project_structure(
     project_path: str, scan_depth: int = 3, include_hidden: bool = False
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Analyze project structure and provide documentation recommendations.
 
     This tool performs a comprehensive analysis of a project's directory structure,
@@ -701,9 +697,7 @@ async def scan_project_structure(
             "Tool called: scan_project_structure",
             context={"project_path": project_path, "scan_depth": scan_depth},
         )
-        result = await scan_project_structure_tool(
-            project_path, scan_depth, include_hidden
-        )
+        result = await scan_project_structure_tool(project_path, scan_depth, include_hidden)
         log_with_context(
             logger,
             logging.INFO,
@@ -723,12 +717,12 @@ async def scan_project_structure(
         log_with_context(
             logger,
             logging.ERROR,
-            f"Unexpected error in scan_project_structure: {str(e)}",
+            f"Unexpected error in scan_project_structure: {e!s}",
             context={"project_path": project_path, "error_type": type(e).__name__},
         )
         logger.exception("Unexpected error")
         raise ServiceError(
-            f"Failed to scan project structure: {str(e)}",
+            f"Failed to scan project structure: {e!s}",
             service_name="scan_project_structure",
         ) from e
 
@@ -737,8 +731,8 @@ async def scan_project_structure(
 async def generate_from_template(
     project_path: str,
     template_name: str = "generic",
-    custom_sections: Optional[Dict[str, List[str]]] = None,
-) -> Dict[str, Any]:
+    custom_sections: dict[str, list[str]] | None = None,
+) -> dict[str, Any]:
     """Generate llms.txt file from predefined templates for common project types.
 
     This tool generates llms.txt files using pre-configured templates optimized for
@@ -833,9 +827,7 @@ async def generate_from_template(
             "Tool called: generate_from_template",
             context={"project_path": project_path, "template_name": template_name},
         )
-        result = await generate_from_template_tool(
-            project_path, template_name, custom_sections
-        )
+        result = await generate_from_template_tool(project_path, template_name, custom_sections)
         log_with_context(
             logger,
             logging.INFO,
@@ -855,20 +847,18 @@ async def generate_from_template(
         log_with_context(
             logger,
             logging.ERROR,
-            f"Unexpected error in generate_from_template: {str(e)}",
+            f"Unexpected error in generate_from_template: {e!s}",
             context={"project_path": project_path, "error_type": type(e).__name__},
         )
         logger.exception("Unexpected error")
         raise ServiceError(
-            f"Failed to generate from template: {str(e)}",
+            f"Failed to generate from template: {e!s}",
             service_name="generate_from_template",
         ) from e
 
 
 @mcp.tool()
-async def help(
-    tool_name: Optional[str] = None, category: Optional[str] = None
-) -> Dict[str, Any]:
+async def help(tool_name: str | None = None, category: str | None = None) -> dict[str, Any]:
     """Get comprehensive help information about available tools and server capabilities.
 
     This tool provides detailed documentation and usage information for all tools
@@ -954,20 +944,18 @@ async def help(
         log_with_context(
             logger,
             logging.ERROR,
-            f"Unexpected error in help: {str(e)}",
+            f"Unexpected error in help: {e!s}",
             context={"tool_name": tool_name, "error_type": type(e).__name__},
         )
         logger.exception("Unexpected error")
         raise ServiceError(
-            f"Failed to provide help: {str(e)}",
+            f"Failed to provide help: {e!s}",
             service_name="help",
         ) from e
 
 
 @mcp.tool()
-async def status(
-    include_system_info: bool = False, include_performance_metrics: bool = False
-) -> Dict[str, Any]:
+async def status(include_system_info: bool = False, include_performance_metrics: bool = False) -> dict[str, Any]:
     """Get comprehensive server status and health information.
 
     This tool provides detailed information about the server's current status,
@@ -1064,18 +1052,18 @@ async def status(
         log_with_context(
             logger,
             logging.ERROR,
-            f"Unexpected error in status: {str(e)}",
+            f"Unexpected error in status: {e!s}",
             context={"error_type": type(e).__name__},
         )
         logger.exception("Unexpected error")
         raise ServiceError(
-            f"Failed to get status: {str(e)}",
+            f"Failed to get status: {e!s}",
             service_name="status",
         ) from e
 
 
 @mcp.tool()
-async def health_check() -> Dict[str, Any]:
+async def health_check() -> dict[str, Any]:
     """Perform a quick health check of the server.
 
     This tool performs a lightweight health check to verify that the server is
@@ -1149,20 +1137,18 @@ async def health_check() -> Dict[str, Any]:
         log_with_context(
             logger,
             logging.ERROR,
-            f"Unexpected error in health_check: {str(e)}",
+            f"Unexpected error in health_check: {e!s}",
             context={"error_type": type(e).__name__},
         )
         logger.exception("Unexpected error")
         raise ServiceError(
-            f"Failed to perform health check: {str(e)}",
+            f"Failed to perform health check: {e!s}",
             service_name="health_check",
         ) from e
 
 
 @mcp.tool()
-async def analyze_repo(
-    repo_path: str, include_analysis: bool = False, output_format: str = "text"
-) -> Dict[str, Any]:
+async def analyze_repo(repo_path: str, include_analysis: bool = False, output_format: str = "text") -> dict[str, Any]:
     """Analyze repository for AI accessibility and provide comprehensive recommendations.
 
     This tool performs a thorough analysis of a repository's structure, documentation,
@@ -1285,12 +1271,12 @@ async def analyze_repo(
         log_with_context(
             logger,
             logging.ERROR,
-            f"Unexpected error in analyze_repo: {str(e)}",
+            f"Unexpected error in analyze_repo: {e!s}",
             context={"repo_path": repo_path, "error_type": type(e).__name__},
         )
         logger.exception("Unexpected error")
         raise ServiceError(
-            f"Failed to analyze repository: {str(e)}",
+            f"Failed to analyze repository: {e!s}",
             service_name="analyze_repo",
         ) from e
 
@@ -1312,12 +1298,12 @@ class LLMTextMCP:
             log_with_context(
                 logger,
                 logging.ERROR,
-                f"Failed to initialize server: {str(e)}",
+                f"Failed to initialize server: {e!s}",
                 context={"error_type": type(e).__name__},
                 exc_info=True,
             )
             raise ServiceError(
-                f"Failed to initialize server: {str(e)}",
+                f"Failed to initialize server: {e!s}",
                 service_name="LLMTextMCP",
             ) from e
 
@@ -1342,12 +1328,12 @@ class LLMTextMCP:
             log_with_context(
                 logger,
                 logging.ERROR,
-                f"Server error: {str(e)}",
+                f"Server error: {e!s}",
                 context={"error_type": type(e).__name__},
                 exc_info=True,
             )
             raise ServiceError(
-                f"Server runtime error: {str(e)}",
+                f"Server runtime error: {e!s}",
                 service_name="LLMTextMCP",
             ) from e
         finally:
@@ -1379,7 +1365,7 @@ class LLMTextMCP:
             log_with_context(
                 logger,
                 logging.ERROR,
-                f"Server error: {str(e)}",
+                f"Server error: {e!s}",
                 context={
                     "transport": "http",
                     "host": host,
@@ -1389,7 +1375,7 @@ class LLMTextMCP:
                 exc_info=True,
             )
             raise ServiceError(
-                f"Server runtime error: {str(e)}",
+                f"Server runtime error: {e!s}",
                 service_name="LLMTextMCP",
             ) from e
         finally:

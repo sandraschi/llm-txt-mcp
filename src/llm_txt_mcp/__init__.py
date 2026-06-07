@@ -5,8 +5,6 @@ This package provides tools for automatically generating, updating, and managing
 llms.txt files for projects to make them AI-readable.
 """
 
-from typing import Optional
-
 # Import core components
 from .models.service import DocumentationProject, LLMTextService
 from .server import LLMTextMCP
@@ -20,17 +18,17 @@ __license__ = "MIT"
 
 # Public API
 __all__ = [
-    "LLMTextService",
     "DocumentationProject",
-    "LLMTextMCP",
     "LLMTextGenerator",
-    "server_main",
-    "generate_llms_txt",
+    "LLMTextMCP",
+    "LLMTextService",
     "create_service",
+    "generate_llms_txt",
+    "server_main",
 ]
 
 # Global service instance
-_service_instance: Optional[LLMTextService] = None
+_service_instance: LLMTextService | None = None
 
 
 def create_service() -> LLMTextService:
@@ -45,8 +43,8 @@ def create_service() -> LLMTextService:
 
 def generate_llms_txt(
     project_path: str,
-    output_path: Optional[str] = None,
-    service: Optional[LLMTextService] = None,
+    output_path: str | None = None,
+    service: LLMTextService | None = None,
 ) -> str:
     """
     Convenience function to generate llms.txt for a project.

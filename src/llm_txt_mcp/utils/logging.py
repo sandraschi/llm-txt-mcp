@@ -4,7 +4,7 @@ import json
 import logging
 import sys
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class StructuredFormatter(logging.Formatter):
@@ -12,7 +12,7 @@ class StructuredFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         """Format log record as JSON."""
-        log_data: Dict[str, Any] = {
+        log_data: dict[str, Any] = {
             "timestamp": datetime.utcnow().isoformat() + "Z",
             "level": record.levelname,
             "logger": record.name,
@@ -41,7 +41,7 @@ class StructuredFormatter(logging.Formatter):
 def setup_logging(
     level: str = "INFO",
     use_json: bool = True,
-    stream: Optional[Any] = None,
+    stream: Any | None = None,
 ) -> None:
     """
     Set up structured logging for the application.
@@ -101,7 +101,7 @@ def log_with_context(
     logger: logging.Logger,
     level: int,
     message: str,
-    context: Optional[Dict[str, Any]] = None,
+    context: dict[str, Any] | None = None,
     **kwargs: Any,
 ) -> None:
     """
@@ -114,11 +114,10 @@ def log_with_context(
         context: Additional context dictionary
         **kwargs: Additional fields to include in log
     """
-    extra: Dict[str, Any] = {}
+    extra: dict[str, Any] = {}
     if context:
         extra["context"] = context
     if kwargs:
         extra["extra_fields"] = kwargs
 
     logger.log(level, message, extra=extra)
-

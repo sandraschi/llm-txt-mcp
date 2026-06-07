@@ -734,7 +734,7 @@ wheels = [
 
 [[package]]
 name = "llm-txt-mcp"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "aiofiles" },
@@ -768,7 +768,7 @@ dev = [
 requires-dist = [
     { name = "aiofiles", specifier = ">=23.1.0" },
     { name = "fastapi", specifier = ">=0.109.0" },
-    { name = "fastmcp", specifier = ">=3.1.0,<4" },
+    { name = "fastmcp", specifier = ">=3.2,<4" },
     { name = "gitpython", specifier = ">=3.1.0" },
     { name = "markdown", specifier = ">=3.5.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.0.0" },

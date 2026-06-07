@@ -232,8 +232,12 @@ generate_llms_txt(project_path="/home/user/my-python-app")
 ```
 
 This will create:
-- `llms.txt` - Main documentation index
-- `llms-full.txt` - Complete content inclusion
+- `llms.txt` — fleet-style index (links to `llms-full.txt`, capped doc list)
+- `llms-full.txt` — curated excerpts (secrets/paths sanitized; no debug dumps)
+
+**Quality mode** (default `quality_mode=true`) skips `node_modules`, `.git`, lockfiles,
+`debug_output.txt`, megatest guides, and `.env`. Set `quality_mode=false` only if you
+need the legacy verbose dump behavior.
 
 ### Validate and Update Existing Documentation
 

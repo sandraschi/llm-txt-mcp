@@ -7,23 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-06-07
+
 ### Added
-- Comprehensive Product Requirements Document (PRD)
-- Security policy (SECURITY.md)
-- Contributing guidelines (CONTRIBUTING.md)
-- This changelog
+- `manifest_quality` module: skip lists for junk dirs/files, excerpt embedding, PII/path sanitization
+- `quality_mode` parameter on `generate_llms_txt` (default `true`) — fleet-style index + curated corpus
+- Validation checks for `.git` links, machine paths, and missing `llms-full.txt` reference
+- Tests: `test_manifest_quality.py`, `test_generation_quality.py`
 
 ### Changed
-- Updated minimum Python version from 3.9 to 3.11
-- Upgraded to Ruff 0.14.5 for linting and formatting
-- Replaced Black, isort, and pylint with Ruff
-- Updated FastMCP requirement to 2.12.0+
-- Updated all documentation references to llm-txt-mcp
-
-### Fixed
-- Line length violations in analyzer.py and help.py
-- Optional type hints in help.py and server.py
-- Import organization across all modules
+- `llms-full.txt` uses bounded excerpts instead of pasting entire repo files
+- Doc scan limited to priority root markdown + `docs/` tree (no broad `*.txt` rglob)
+- Index caps at 12 doc links; skips debug dumps, lockfiles, `.env`, megatest guides
 
 ## [0.1.0] - 2025-11-19
 

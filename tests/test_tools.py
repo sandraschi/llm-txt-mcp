@@ -40,29 +40,37 @@ class TestMCPTools:
     @pytest.mark.asyncio
     async def test_validate_llms_txt_tool(self):
         """Test the validate_llms_txt tool."""
-        with patch("llm_txt_mcp.tools.tools.get_service") as mock_get_service:
-            mock_service = MagicMock()
-            mock_service.validate_llms_txt = AsyncMock(
-                return_value={"is_valid": True, "errors": [], "warnings": [], "suggestions": []}
-            )
-            mock_get_service.return_value = mock_service
+        with tempfile.TemporaryDirectory() as temp_dir:
+            llms_path = Path(temp_dir) / "llms.txt"
+            llms_path.write_text("# Test\n> summary\n\n## Quick links\n", encoding="utf-8")
 
-            result = await validate_llms_txt_tool("dummy_path")
+            with patch("llm_txt_mcp.tools.tools.get_service") as mock_get_service:
+                mock_service = MagicMock()
+                mock_service.validate_llms_txt = AsyncMock(
+                    return_value={"is_valid": True, "errors": [], "warnings": [], "suggestions": []}
+                )
+                mock_get_service.return_value = mock_service
 
-            assert "is_valid" in result
-            assert result["is_valid"] is True
-            mock_service.validate_llms_txt.assert_called_once_with(file_path="dummy_path")
+                result = await validate_llms_txt_tool(str(llms_path))
+
+                assert "is_valid" in result
+                assert result["is_valid"] is True
+                mock_service.validate_llms_txt.assert_called_once_with(file_path=str(llms_path))
 
     @pytest.mark.asyncio
     async def test_generate_llms_txt_tool_error_handling(self):
         """Test error handling in generate_llms_txt tool."""
-        with patch("llm_txt_mcp.tools.tools.get_service") as mock_get_service:
-            mock_service = MagicMock()
-            mock_service.generate_project_llms_txt = AsyncMock(side_effect=Exception("Test error"))
-            mock_get_service.return_value = mock_service
+        with tempfile.TemporaryDirectory() as temp_dir:
+            project_path = Path(temp_dir)
+            (project_path / "README.md").write_text("# Test\n", encoding="utf-8")
 
-            with pytest.raises(Exception, match="Test error"):
-                await generate_llms_txt_tool("invalid_path")
+            with patch("llm_txt_mcp.tools.tools.get_service") as mock_get_service:
+                mock_service = MagicMock()
+                mock_service.generate_project_llms_txt = AsyncMock(side_effect=Exception("Test error"))
+                mock_get_service.return_value = mock_service
+
+                with pytest.raises(Exception, match="Test error"):
+                    await generate_llms_txt_tool(str(project_path))
 
     def test_get_service_singleton(self):
         """Test that get_service returns the same instance."""

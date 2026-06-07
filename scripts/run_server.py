@@ -39,17 +39,11 @@ Examples:
         """,
     )
 
-    parser.add_argument(
-        "--stdio", action="store_true", help="Run with stdio transport for Claude Desktop"
-    )
+    parser.add_argument("--stdio", action="store_true", help="Run with stdio transport for Claude Desktop")
 
-    parser.add_argument(
-        "--host", default="localhost", help="Host for HTTP server (default: localhost)"
-    )
+    parser.add_argument("--host", default="localhost", help="Host for HTTP server (default: localhost)")
 
-    parser.add_argument(
-        "--port", type=int, default=8000, help="Port for HTTP server (default: 8000)"
-    )
+    parser.add_argument("--port", type=int, default=8000, help="Port for HTTP server (default: 8000)")
 
     parser.add_argument(
         "--log-level",

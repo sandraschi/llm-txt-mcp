@@ -1,7 +1,6 @@
 import asyncio
-import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 # Add llm-txt-mcp src to path
 llm_txt_root = Path(r"D:\Dev\repos\llm-txt-mcp")
@@ -20,9 +19,7 @@ async def mass_generate(root_dir: str):
     for repo in repos:
         print(f"Processing {repo.name}...")
         try:
-            result = await service.generate_project_llms_txt(
-                project_path=str(repo), scan_depth=3
-            )
+            result = await service.generate_project_llms_txt(project_path=str(repo), scan_depth=3)
             print(f"  [OK] Generated: {result.get('llms_txt_path')}")
         except Exception as e:
             print(f"  [ERROR] Failed {repo.name}: {e}")

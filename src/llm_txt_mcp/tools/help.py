@@ -1,7 +1,7 @@
 """Help tool for LLM.txt MCP server."""
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from ..utils.logging import get_logger, log_with_context
 
@@ -11,9 +11,7 @@ logger = get_logger(__name__)
 
 
 # Tool function without decorator - will be registered in server.py
-async def help_tool(
-    tool_name: Optional[str] = None, category: Optional[str] = None
-) -> Dict[str, Any]:
+async def help_tool(tool_name: str | None = None, category: str | None = None) -> dict[str, Any]:
     """
     Get comprehensive help information about available tools and server capabilities.
 
@@ -75,9 +73,7 @@ async def help_tool(
                     "output_format": "Output format (xml/json)",
                     "include_optional": "Include optional sections",
                 },
-                "example": (
-                    'convert_to_context(llms_txt_path="/path/to/llms.txt", ' 'output_format="xml")'
-                ),
+                "example": ('convert_to_context(llms_txt_path="/path/to/llms.txt", output_format="xml")'),
             },
             "scan_project_structure": {
                 "description": "Analyze project structure and provide recommendations",
@@ -97,10 +93,7 @@ async def help_tool(
                     "template_name": "Template to use",
                     "custom_sections": "Additional custom sections",
                 },
-                "example": (
-                    'generate_from_template(project_path="/path/to/project", '
-                    'template_name="python")'
-                ),
+                "example": ('generate_from_template(project_path="/path/to/project", template_name="python")'),
             },
             "help": {
                 "description": "Get help information about tools",
@@ -124,9 +117,7 @@ async def help_tool(
                 "example": "health_check()",
             },
             "analyze_repo": {
-                "description": (
-                    "Analyze repository for AI accessibility and provide recommendations"
-                ),
+                "description": ("Analyze repository for AI accessibility and provide recommendations"),
                 "category": "analysis",
                 "parameters": {
                     "repo_path": "Path to repository",
@@ -157,14 +148,12 @@ async def help_tool(
 
         # Filter by category if specified
         if category:
-            filtered_tools = {
-                name: info for name, info in all_tools.items() if info["category"] == category
-            }
+            filtered_tools = {name: info for name, info in all_tools.items() if info["category"] == category}
         else:
             filtered_tools = all_tools
 
         # General help information
-        categories: Dict[str, List[Dict[str, str]]] = {}
+        categories: dict[str, list[dict[str, str]]] = {}
         for name, info in filtered_tools.items():
             cat = info["category"]
             if cat not in categories:
@@ -177,10 +166,7 @@ async def help_tool(
             "description": "MCP server for generating and managing llms.txt documentation files",
             "categories": categories,
             "total_tools": len(filtered_tools),
-            "usage": (
-                "Use these tools to make your projects AI-accessible through automated "
-                "llms.txt generation"
-            ),
+            "usage": ("Use these tools to make your projects AI-accessible through automated llms.txt generation"),
         }
 
     except Exception:
