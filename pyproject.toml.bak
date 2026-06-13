@@ -1,0 +1,96 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-txt-mcp"
+version = "0.1.0"
+description = "MCP server for generating and managing llms.txt documentation files"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [
+    {name = "Sandra Schipal", email = "sandra@sandraschi.dev"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Documentation",
+    "Topic :: Software Development :: Documentation",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+dependencies = [
+    "fastmcp>=3.1.0,<4",
+    "fastapi>=0.109.0",
+    "uvicorn>=0.27.0",
+    "aiofiles>=23.1.0",
+    "pathspec>=0.11.0",
+    "markdown>=3.5.0",
+    "pyyaml>=6.0.0",
+    "gitpython>=3.1.0",
+    "typing-extensions>=4.0.0; python_version < '3.11'",
+    "ruff>=0.15.2",
+    "psutil>=5.9.0",
+    "prefab-ui>=0.14.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=3.0.0",
+    "pytest-asyncio>=0.21.0",
+    "ruff>=0.14.5",
+    "mypy>=1.0.0",
+    "types-setuptools",
+    "types-pyyaml",
+    "types-markdown",
+    "types-aiofiles",
+    "types-psutil"
+]
+
+[project.urls]
+Homepage = "https://github.com/sandraschi/llm-txt-mcp"
+Documentation = "https://github.com/sandraschi/llm-txt-mcp#readme"
+Issues = "https://github.com/sandraschi/llm-txt-mcp/issues"
+Source = "https://github.com/sandraschi/llm-txt-mcp"
+
+[project.scripts]
+llm-txt-mcp = "llm_txt_mcp:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["llm_txt_mcp", "llm_txt_mcp.*"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+disallow_untyped_calls = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = ["git.*", "pathspec.*"]
+ignore_missing_imports = true
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "S", "UP", "RUF"]
+ignore = ["S101", "B008"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
