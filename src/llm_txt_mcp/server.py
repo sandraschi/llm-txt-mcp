@@ -93,7 +93,7 @@ async def api_call_tool(request: dict[str, Any]):
 
 # Mount the FastMCP HTTP/SSE application handlers at the root
 # This allows standard MCP clients to connect to the root URL
-app.mount("/", mcp.http_app())
+app.mount("/", mcp.http_app(path="/"))
 
 
 # Register all tools with proper decorators

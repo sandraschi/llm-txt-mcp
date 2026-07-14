@@ -4,6 +4,8 @@ import { Dashboard } from '@/pages/dashboard';
 import { Generator } from '@/pages/generator';
 import { Validator } from '@/pages/validator';
 import { Settings } from '@/pages/settings';
+import FloatingChat from '@/components/FloatingChat';
+import Logging from '@/pages/Logging';
 
 function App() {
   return (
@@ -14,9 +16,11 @@ function App() {
           <Route path="/generator" element={<Generator />} />
           <Route path="/validator" element={<Validator />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/logging" element={<Logging />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AppLayout>
+      <FloatingChat />
     </Router>
   );
 }

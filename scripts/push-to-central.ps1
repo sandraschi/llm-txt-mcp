@@ -36,9 +36,9 @@ param(
 
 $WhatIf = $WhatIfPreference
 
-Write-Host "`n╔═══════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host "║     📤 Push Script to Central Docs Repository 📤       ║" -ForegroundColor Cyan
-Write-Host "╚═══════════════════════════════════════════════════════════╝`n" -ForegroundColor Cyan
+Write-Host "`nâ•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•-" -ForegroundColor Cyan
+Write-Host "â•‘     ðŸ“¤ Push Script to Central Docs Repository ðŸ“¤       â•‘" -ForegroundColor Cyan
+Write-Host "â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`n" -ForegroundColor Cyan
 
 # Paths
 $centralRepo = "D:\Dev\repos\mcp-central-docs"
@@ -50,17 +50,17 @@ $destScript = Join-Path $centralScriptsDir $ScriptName
 
 # Validate source exists
 if (-not (Test-Path $sourceScript)) {
-    Write-Host "❌ Error: Script not found: $sourceScript" -ForegroundColor Red
+    Write-Host "âŒ Error: Script not found: $sourceScript" -ForegroundColor Red
     exit 1
 }
 
 # Validate central repo exists
 if (-not (Test-Path $centralRepo)) {
-    Write-Host "❌ Error: Central docs repo not found: $centralRepo" -ForegroundColor Red
+    Write-Host "âŒ Error: Central docs repo not found: $centralRepo" -ForegroundColor Red
     exit 1
 }
 
-Write-Host "📋 Push Configuration:" -ForegroundColor Cyan
+Write-Host "ðŸ“‹ Push Configuration:" -ForegroundColor Cyan
 Write-Host "  Source repo:   $currentRepoName" -ForegroundColor White
 Write-Host "  Script:        $ScriptName" -ForegroundColor White
 Write-Host "  Source:        $sourceScript" -ForegroundColor Gray
@@ -70,18 +70,18 @@ Write-Host ""
 # Check if destination exists
 $destExists = Test-Path $destScript
 if ($destExists) {
-    Write-Host "⚠️  Destination file already exists" -ForegroundColor Yellow
+    Write-Host "âš ï¸  Destination file already exists" -ForegroundColor Yellow
     
     # Compare files
     $sourceHash = (Get-FileHash $sourceScript -Algorithm SHA256).Hash
     $destHash = (Get-FileHash $destScript -Algorithm SHA256).Hash
     
     if ($sourceHash -eq $destHash) {
-        Write-Host "✅ Files are identical - no update needed" -ForegroundColor Green
+        Write-Host "âœ… Files are identical - no update needed" -ForegroundColor Green
         exit 0
     }
     
-    Write-Host "📊 File comparison:" -ForegroundColor Cyan
+    Write-Host "ðŸ“Š File comparison:" -ForegroundColor Cyan
     $sourceSize = (Get-Item $sourceScript).Length
     $destSize = (Get-Item $destScript).Length
     $sourceModified = (Get-Item $sourceScript).LastWriteTime
@@ -94,7 +94,7 @@ if ($destExists) {
     if (-not $Force -and -not $WhatIf) {
         $response = Read-Host "Overwrite central repo version? (y/N)"
         if ($response -ne 'y' -and $response -ne 'Y') {
-            Write-Host "❌ Cancelled by user" -ForegroundColor Yellow
+            Write-Host "âŒ Cancelled by user" -ForegroundColor Yellow
             exit 0
         }
     }
@@ -102,20 +102,20 @@ if ($destExists) {
 
 # Perform copy
 if ($WhatIf) {
-    Write-Host "`n⚠️  DRY-RUN MODE: No files will be copied`n" -ForegroundColor Yellow
+    Write-Host "`nâš ï¸  DRY-RUN MODE: No files will be copied`n" -ForegroundColor Yellow
     Write-Host "Would copy:" -ForegroundColor Cyan
     Write-Host "  FROM: $sourceScript" -ForegroundColor White
     Write-Host "  TO:   $destScript" -ForegroundColor White
-    Write-Host "`n✅ Dry-run complete - no files copied`n" -ForegroundColor Green
+    Write-Host "`nâœ… Dry-run complete - no files copied`n" -ForegroundColor Green
     exit 0
 }
 
 try {
     Copy-Item -Path $sourceScript -Destination $destScript -Force
-    Write-Host "✅ Successfully copied to central repo!" -ForegroundColor Green
+    Write-Host "âœ… Successfully copied to central repo!" -ForegroundColor Green
     
     # Show next steps
-    Write-Host "`n📋 Next steps:" -ForegroundColor Cyan
+    Write-Host "`nðŸ“‹ Next steps:" -ForegroundColor Cyan
     Write-Host "  1. cd $centralRepo" -ForegroundColor Gray
     Write-Host "  2. git status" -ForegroundColor Gray
     Write-Host "  3. git add scripts/$ScriptName" -ForegroundColor Gray
@@ -125,8 +125,8 @@ try {
     
 }
 catch {
-    Write-Host "❌ Error copying file: $_" -ForegroundColor Red
+    Write-Host "âŒ Error copying file: $_" -ForegroundColor Red
     exit 1
 }
 
-Write-Host "✅ Done!`n" -ForegroundColor Green
+Write-Host "âœ… Done!`n" -ForegroundColor Green

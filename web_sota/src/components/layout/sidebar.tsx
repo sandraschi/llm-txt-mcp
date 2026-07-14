@@ -7,7 +7,8 @@ import {
     Settings,
     ChevronLeft,
     ChevronRight,
-    FileText
+    FileText,
+    ScrollText
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -23,6 +24,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         { href: '/generator', label: 'Generator', icon: FileCode },
         { href: '/validator', label: 'Validator', icon: Search },
         { href: '/settings', label: 'Settings', icon: Settings },
+    { href: '/logging', label: 'Logging', icon: ScrollText },
     ];
 
     return (
