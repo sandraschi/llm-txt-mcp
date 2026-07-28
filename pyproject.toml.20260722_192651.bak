@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}
 authors = [
-    {name = "Sandra Schipal", email = "sandraschipal@gmail.com"}
+    {name = "Sandra Schipal", email = "sandra@sandraschi.dev"}
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -32,7 +32,7 @@ dependencies = [
     "pyyaml>=6.0.0",
     "gitpython>=3.1.0",
     "typing-extensions>=4.0.0; python_version < '3.11'",
-    "ruff>=0.16.0,<0.17",
+    "ruff>=0.15.2",
     "psutil>=5.9.0",
     "prefab-ui>=0.14.0",
 ]
@@ -42,7 +42,7 @@ dev = [
     "pytest>=7.0.0",
     "pytest-cov>=3.0.0",
     "pytest-asyncio>=0.21.0",
-    "ruff>=0.16.0,<0.17",
+    "ruff>=0.14.5",
     "mypy>=1.0.0",
     "types-setuptools",
     "types-pyyaml",

@@ -1,0 +1,22 @@
+{
+  "manifest_version": "0.2",
+  "name": "llm-txt-mcp",
+  "version": "0.2.0",
+  "description": "MCP server for generating and managing llms.txt documentation files",
+  "author": { "name": "sandraschi" },
+  "server": {
+    "type": "python",
+    "entry_point": "src/llm_txt_mcp/__main__.py",
+    "mcp_config": {
+      "command": "uv",
+      "args": ["run","--directory","${PWD}","python","-m","llm_txt_mcp"],
+      "env": {
+        "PYTHONPATH": "${PWD}/src",
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  },
+  "tools": [
+    { "name": "generate_llms_txt", "description": "generate_llms_txt" }
+  ]
+}
