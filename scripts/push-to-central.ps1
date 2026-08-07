@@ -36,8 +36,8 @@ param(
 
 $WhatIf = $WhatIfPreference
 
-Write-Host "`nâ•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•-" -ForegroundColor Cyan
-Write-Host "â•‘     ðŸ“¤ Push Script to Central Docs Repository ðŸ“¤       â•‘" -ForegroundColor Cyan
+Write-Host "`nâ•"â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•-" -ForegroundColor Cyan
+Write-Host "â•'     ðŸ"¤ Push Script to Central Docs Repository ðŸ"¤       â•'" -ForegroundColor Cyan
 Write-Host "â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`n" -ForegroundColor Cyan
 
 # Paths
@@ -60,7 +60,7 @@ if (-not (Test-Path $centralRepo)) {
     exit 1
 }
 
-Write-Host "ðŸ“‹ Push Configuration:" -ForegroundColor Cyan
+Write-Host "ðŸ"‹ Push Configuration:" -ForegroundColor Cyan
 Write-Host "  Source repo:   $currentRepoName" -ForegroundColor White
 Write-Host "  Script:        $ScriptName" -ForegroundColor White
 Write-Host "  Source:        $sourceScript" -ForegroundColor Gray
@@ -77,11 +77,11 @@ if ($destExists) {
     $destHash = (Get-FileHash $destScript -Algorithm SHA256).Hash
     
     if ($sourceHash -eq $destHash) {
-        Write-Host "âœ… Files are identical - no update needed" -ForegroundColor Green
+        Write-Host "âœ... Files are identical - no update needed" -ForegroundColor Green
         exit 0
     }
     
-    Write-Host "ðŸ“Š File comparison:" -ForegroundColor Cyan
+    Write-Host "ðŸ"Š File comparison:" -ForegroundColor Cyan
     $sourceSize = (Get-Item $sourceScript).Length
     $destSize = (Get-Item $destScript).Length
     $sourceModified = (Get-Item $sourceScript).LastWriteTime
@@ -106,16 +106,16 @@ if ($WhatIf) {
     Write-Host "Would copy:" -ForegroundColor Cyan
     Write-Host "  FROM: $sourceScript" -ForegroundColor White
     Write-Host "  TO:   $destScript" -ForegroundColor White
-    Write-Host "`nâœ… Dry-run complete - no files copied`n" -ForegroundColor Green
+    Write-Host "`nâœ... Dry-run complete - no files copied`n" -ForegroundColor Green
     exit 0
 }
 
 try {
     Copy-Item -Path $sourceScript -Destination $destScript -Force
-    Write-Host "âœ… Successfully copied to central repo!" -ForegroundColor Green
+    Write-Host "âœ... Successfully copied to central repo!" -ForegroundColor Green
     
     # Show next steps
-    Write-Host "`nðŸ“‹ Next steps:" -ForegroundColor Cyan
+    Write-Host "`nðŸ"‹ Next steps:" -ForegroundColor Cyan
     Write-Host "  1. cd $centralRepo" -ForegroundColor Gray
     Write-Host "  2. git status" -ForegroundColor Gray
     Write-Host "  3. git add scripts/$ScriptName" -ForegroundColor Gray
@@ -129,4 +129,4 @@ catch {
     exit 1
 }
 
-Write-Host "âœ… Done!`n" -ForegroundColor Green
+Write-Host "âœ... Done!`n" -ForegroundColor Green
