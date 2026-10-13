@@ -10,7 +10,7 @@
 > Automated generation and management of llms.txt documentation files for AI accessibility
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![FastMCP](https://img.shields.io/badge/FastMCP-2.12.0+-green.svg)](https://github.com/jlowin/fastmcp)
+[![FastMCP](https://img.shields.io/badge/FastMCP-3.4%2B-green.svg)](https://github.com/jlowin/fastmcp)
 [![Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -232,8 +232,8 @@ generate_llms_txt(project_path="/home/user/my-python-app")
 ```
 
 This will create:
-- `llms.txt` — fleet-style index (links to `llms-full.txt`, capped doc list)
-- `llms-full.txt` — curated excerpts (secrets/paths sanitized; no debug dumps)
+- `llms.txt` -- fleet-style index (links to `llms-full.txt`, capped doc list)
+- `llms-full.txt` -- curated excerpts (secrets/paths sanitized; no debug dumps)
 
 **Quality mode** (default `quality_mode=true`) skips `node_modules`, `.git`, lockfiles,
 `debug_output.txt`, megatest guides, and `.env`. Set `quality_mode=false` only if you
