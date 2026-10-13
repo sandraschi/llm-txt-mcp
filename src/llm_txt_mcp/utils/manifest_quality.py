@@ -1,4 +1,4 @@
-"""Quality rules for llms.txt / llms-full.txt — avoid junk, secrets, and PII in manifests."""
+"""Quality rules for llms.txt / llms-full.txt - avoid junk, secrets, and PII in manifests."""
 
 from __future__ import annotations
 
@@ -221,7 +221,7 @@ def excerpt_markdown(text: str, max_lines: int = MAX_EXCERPT_LINES, max_chars: i
         if line.startswith("## "):
             section_count += 1
             if section_count > 4:
-                out.append("\n[... excerpt truncated — see source file in repo ...]")
+                out.append("\n[... excerpt truncated - see source file in repo ...]")
                 break
         out.append(line)
         if len(out) >= max_lines:
@@ -243,7 +243,7 @@ def validate_manifest_links(content: str) -> dict[str, list[str]]:
         warnings.append("Missing reference to llms-full.txt (fleet index should link to corpus)")
 
     if ".git/" in lower or ".git\\" in lower:
-        errors.append("Manifest links to .git paths — remove")
+        errors.append("Manifest links to .git paths - remove")
 
     for bad in ("debug_output", ".env", "tasks.json", "package-lock.json"):
         if bad in lower:

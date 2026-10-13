@@ -322,7 +322,7 @@ class LLMTextGenerator:
         if quality_mode:
             content.append("**Full detail: see [llms-full.txt](llms-full.txt)**")
             content.append("")
-            content.append("Curated index for LLM crawlers — no local dumps or secrets.")
+            content.append("Curated index for LLM crawlers - no local dumps or secrets.")
             content.append("")
 
         section_titles = {
@@ -350,7 +350,7 @@ class LLMTextGenerator:
         llms_content: dict[str, Any],
         quality_mode: bool = True,
     ) -> str:
-        """Generate llms-full.txt — excerpts in quality mode, not raw repo dumps."""
+        """Generate llms-full.txt - excerpts in quality mode, not raw repo dumps."""
         full_content = [llms_content["header"].rstrip()]
         full_content.append("")
         full_content.append("> Curated corpus for LLM ingestion. Excerpts only; paths and secrets sanitized.")
@@ -368,7 +368,7 @@ class LLMTextGenerator:
                 file_path = project.path / item["url"]
                 if file_path.is_dir():
                     full_content.append(f"### {item['title']}")
-                    full_content.append(f"Path: {item['url']}/ (directory — see repo)")
+                    full_content.append(f"Path: {item['url']}/ (directory - see repo)")
                     full_content.append("")
                     continue
 
@@ -377,7 +377,7 @@ class LLMTextGenerator:
 
                 if quality_mode and not should_embed_file(file_path, project.path):
                     full_content.append(f"### {item['title']}")
-                    full_content.append(f"Source: {item['url']} (index link only — not embedded)")
+                    full_content.append(f"Source: {item['url']} (index link only - not embedded)")
                     full_content.append("")
                     continue
 
